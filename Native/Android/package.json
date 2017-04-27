@@ -1,0 +1,14 @@
+{
+  "name": "facebookandroid",
+  "version": "1.0.0",
+  "description": "Nativeface Android Plugin",
+  "keywords": [
+    "nativeface",
+    "plugin",
+    "facebook"
+  ],
+  "author": "Smartface",
+  "license": "ISC",
+  "os": "Android",
+  "cpu": ["ARM", "x86"]
+}
