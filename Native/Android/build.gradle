@@ -12,12 +12,29 @@ android {
         versionName "1.0"
         multiDexEnabled true
     }
+
+    signingConfigs {
+        release{
+            def signinPropertiesFile = new File('signing.properties')
+            def Properties signingProperties = new Properties()
+            signingProperties.load(new FileInputStream(signinPropertiesFile))
+
+            storeFile new File(signingProperties["STORE_FILE"])
+            keyAlias signingProperties["KEY_ALIAS"]
+            storePassword signingProperties["STORE_PASSWORD"]
+            keyPassword signingProperties["KEY_PASSWORD"]
+
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -26,4 +43,46 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.+'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
 
+}
+
+task createPlugin(group: "Smartface", description: "Create plugin from this project.", dependsOn : "assembleRelease"){
+    doLast{
+        def PluginName = "SmartfacePlugin"
+        if(project.hasProperty("pluginName")){
+            PluginName = project.property("pluginName")
+        }
+
+        def pluginFileExists = new File("./${PluginName}.zip")
+        pluginFileExists.exists() && pluginFileExists.delete()
+
+        def pluginFolder = new File(PluginName.toString())
+        if(pluginFolder.exists()){
+            pluginFolder.deleteDir()
+        }
+
+        println("########## Building Smartface Plugin")
+
+        def apk = null
+        android.applicationVariants.all { variant ->
+            if ( (variant.name).equals("release") ) {
+                variant.outputs.each { output ->
+                    apk = output.outputFile
+                }
+            }
+        }
+        println "Found output file: " + apk
+
+        exec{
+            executable 'smfc'
+            args "--task=generate_AndroidPluginZip","--path=.","--playerPath=${apk}",'--logStdOut=json'
+        }
+        println("########## Smartface Plugin Successfuly Builded.\n")
+
+        def outputZipFile = new File("./output.zip")
+        outputZipFile.exists() && outputZipFile.deleteOnExit()
+
+        println("########## Completed.\n")
+        println("########## Smartface Android Plugin Successfully Generated")
+
+    }
 }
