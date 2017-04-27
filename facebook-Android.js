@@ -115,25 +115,20 @@ Object.defineProperties(Facebook, {
     'graphRequest': {
         value: function(params){
             var accessToken = Facebook.AccessToken.getCurrentToken();
-            var graphRequest = new NativeGraphRequest(accessToken, params.graphPath, params.parameters, params.httpMethod, NativeGraphRequest.Callback.implement({
+            var graphRequest = new NativeGraphRequest(accessToken.nativeObject, params.graphPath, params.parameters, params.httpMethod, NativeGraphRequest.Callback.implement({
                 'onCompleted': function(response){
                     if(response.getError()){
-                        params.onFailure && params.onFailure();
+                        params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
                     }
                     else{
-                        params.onSuccess && params.onSuccess(response.getJSONObject().toString());
+                        var jsonObject = response.getJSONObject();
+                        const NativeString = requireClass('java.lang.String');
+                        var str = NativeString.valueOf(jsonObject);
+                        params.onSuccess && params.onSuccess(str);
                     }
                 }
             }));
             graphRequest.executeAsync();
-            //  * @param {Object} params
-            //  * @param {String} params.graphPath
-            //  * @param {Object} params.parameters
-            //  * @param {Facebook.HttpMethod} params.httpMethod
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
         },
         enumarable: true
     },
