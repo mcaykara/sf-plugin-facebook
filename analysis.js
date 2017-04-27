@@ -42,7 +42,7 @@ Facebook.applicationName;
 /**
  * @todo add description
  * 
- * @property {Number} graphApiVersion
+ * @property {String} graphApiVersion
  * @android
  * @ios
  * @static
@@ -53,7 +53,7 @@ Facebook.graphApiVersion;
 /**
  * @todo add description
  * 
- * @property {Number} clientToken
+ * @property {String} clientToken
  * @android
  * @ios
  * @static
@@ -64,7 +64,7 @@ Facebook.clientToken;
 /**
  * @todo add description
  * 
- * @property {Number} sdkVersion
+ * @property {String} sdkVersion
  * @readonly
  * @android
  * @ios
