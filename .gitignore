@@ -7,4 +7,3 @@
 **/*.iml
 **/*.keystore
 **/signing.properties
-**/*.apk
