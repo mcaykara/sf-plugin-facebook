@@ -107,6 +107,7 @@ Facebook.login = function(params){};
  * @method graphRequest
  * @param {Object} params
  * @param {String} params.graphPath
+ * @param {Object} params.params
  * @param {Facebook.HttpMethod} params.httpMethod
  * @param {Function} params.onSuccess
  * @param {Object} params.onSuccess.data

@@ -1,13 +1,14 @@
 const TypeUtil                          = require('sf-core/util/type');
-const Page                              = require('sf-core/ui/Page');
+const Page                              = require('sf-core/ui/page');
 const NativeFacebookSdk                 = requireClass('com.facebook.FacebookSdk');
 const NativeLoginManager                = requireClass('com.facebook.login.LoginManager');
-const NativeArrays                      = requireClass('java.util.Arrays');
+const NativeArrayList                   = requireClass('java.util.ArrayList');
 const NativeCallbackManager             = requireClass('com.facebook.CallbackManager');
 const NativeFacebokCallback             = requireClass('com.facebook.FacebookCallback');
-const NativeActivityLifeCycleListener   = requireClass("io.smartface.android.listeners.ActivityLifeCycleListener");
+const NativeActivityLifeCycleListener   = requireClass('io.smartface.android.listeners.ActivityLifeCycleListener');
 const NativeAccessToken                 = requireClass('com.facebook.AccessToken');
 const NativeHttpMethod                  = requireClass('com.facebook.HttpMethod');
+const NativeGraphRequest                = requireClass('com.facebook.GraphRequest');
 
 var activity = Android.getActivity();
 var spratAndroidActivityInstance = requireClass("io.smartface.android.SpratAndroidActivity").getInstance();
@@ -82,8 +83,12 @@ Object.defineProperties(Facebook, {
             if(!TypeUtil.isArray(params.permissions)){
                 throw new TypeError("Parameter type mismatch. params.permissions must be string array");
             }
-            
-            var permissionSet = NativeArrays.asList(params.permissions);
+            // Arrays.asList causes crash.
+            var permissionSet = new NativeArrayList();
+            for(var index in params.permissions){
+                console.log(params.permissions[index]);
+                permissionSet.add(params.permissions[index])
+            }
             loginManager.logInWithReadPermissions(spratAndroidActivityInstance, permissionSet);
             loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
                 'onSuccess': function(loginResult){
@@ -91,7 +96,7 @@ Object.defineProperties(Facebook, {
                         deniedPermissions: loginResult.getRecentlyDeniedPermissions().toArray(),
                         grantedPermissions: loginResult.getRecentlyGrantedPermissions().toArray(),
                         accessToken: new Facebook.AccessToken({
-                            nativeObject: loginResult.accessToken,
+                            nativeObject: loginResult.getAccessToken(),
                             isInternal: true
                         })
                     });
@@ -99,7 +104,7 @@ Object.defineProperties(Facebook, {
                 'onCancel': function(){
                     params.onCancel && params.onCancel();
                 },
-                'onError': function( error) {
+                'onError': function(error) {
                     params.onFailure && params.onFailure(new Error(error.getMessage()));
                 }
             }));
@@ -109,8 +114,21 @@ Object.defineProperties(Facebook, {
     },
     'graphRequest': {
         value: function(params){
+            var accessToken = Facebook.AccessToken.getCurrentToken();
+            var graphRequest = new NativeGraphRequest(accessToken, params.graphPath, params.parameters, params.httpMethod, NativeGraphRequest.Callback.implement({
+                'onCompleted': function(response){
+                    if(response.getError()){
+                        params.onFailure && params.onFailure();
+                    }
+                    else{
+                        params.onSuccess && params.onSuccess(response.getJSONObject().toString());
+                    }
+                }
+            }));
+            graphRequest.executeAsync();
             //  * @param {Object} params
             //  * @param {String} params.graphPath
+            //  * @param {Object} params.parameters
             //  * @param {Facebook.HttpMethod} params.httpMethod
             //  * @param {Function} params.onSuccess
             //  * @param {Object} params.onSuccess.data
