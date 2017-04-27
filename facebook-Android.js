@@ -121,10 +121,11 @@ Object.defineProperties(Facebook, {
                         params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
                     }
                     else{
-                        var jsonObject = response.getJSONObject();
-                        const NativeString = requireClass('java.lang.String');
-                        var str = NativeString.valueOf(jsonObject);
-                        params.onSuccess && params.onSuccess(str);
+                        // var jsonObject = response.getJSONObject();
+                        // const NativeString = requireClass('java.lang.String');
+                        // var str = NativeString.valueOf(jsonObject);
+                        var response = response.getRawResponse();
+                        params.onSuccess && params.onSuccess(JSON.parse(response));
                     }
                 }
             }));
