@@ -73,7 +73,7 @@ task createPlugin(group: "Smartface", description: "Create plugin from this proj
         println("########## Smartface Plugin Successfuly Builded.\n")
 
         def outputZipFile = new File("./output.zip")
-        outputZipFile.exists() && outputZipFile.deleteOnExit()
+        outputZipFile.exists() && outputZipFile.renameTo("./${PluginName}.zip")
 
         println("########## Completed.\n")
         println("########## Smartface Android Plugin Successfully Generated")
