@@ -55,11 +55,6 @@ task createPlugin(group: "Smartface", description: "Create plugin from this proj
         def pluginFileExists = new File("./${PluginName}.zip")
         pluginFileExists.exists() && pluginFileExists.delete()
 
-        def pluginFolder = new File(PluginName.toString())
-        if(pluginFolder.exists()){
-            pluginFolder.deleteDir()
-        }
-
         println("########## Building Smartface Plugin")
 
         def apk = null
@@ -70,11 +65,10 @@ task createPlugin(group: "Smartface", description: "Create plugin from this proj
                 }
             }
         }
-        println "Found output file: " + apk
 
         exec{
             executable 'smfc'
-            args "--task=generate_AndroidPluginZip","--path=.","--playerPath=${apk}",'--logStdOut=json'
+            args "--task=generate_AndroidPluginZip","--path=.","--apkPath=${apk}"
         }
         println("########## Smartface Plugin Successfuly Builded.\n")
 
