@@ -1,0 +1,10 @@
+framework module SMFNative {
+  umbrella header "SMFNative.h"
+
+  export *
+  module * { export * }
+}
+
+module SMFNative.Swift {
+    header "SMFNative-Swift.h"
+}
