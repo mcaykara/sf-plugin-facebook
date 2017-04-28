@@ -138,7 +138,7 @@ Object.defineProperties(Facebook, {
             const NativeBundle = requireClass('android.os.Bundle');
             var accessToken = Facebook.AccessToken.getCurrentToken();
             var paramsBundle = null;
-            if(TypeUtil.isObject(params.parameters)){
+            if(params.parameters){
                 paramsBundle = new NativeBundle();
                 Object.keys(params.parameters).forEach(function (key) {
                     paramsBundle.putString(key, params.parameters[key] + '');
