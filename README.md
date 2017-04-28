@@ -44,7 +44,7 @@ The folder `sample` holds the example codes. You can put them into your workspac
 Please [submit an issue](https://github.com/smartface/sf-plugin-facebook/issues) on GitHub and provide information about your problem.
 
 ## Support & Documentation & Useful Links
-- [Guides](https://developer.smartface.io/docs/facebook/)
+- [Guides](https://developer.smartface.io/docs/facebook-plugin)
 - [Smartface Cloud Dashboard](https://cloud.smartface.io)
 ## Code of Conduct
 We are committed to making participation in this project a harassment-free experience for everyone, regardless of the level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
