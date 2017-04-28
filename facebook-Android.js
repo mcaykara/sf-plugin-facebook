@@ -80,21 +80,42 @@ Object.defineProperties(Facebook, {
             if(!params.page instanceof Page){
                 throw new TypeError("Parameter type mismatch. params.page must be Page instance");
             }
-            if(!TypeUtil.isArray(params.permissions)){
-                throw new TypeError("Parameter type mismatch. params.permissions must be string array");
+            if(!TypeUtil.isArray(params.readPermissions) || (typeof(params.readPermissions) === 'undefined') ||  (typeof(params.readPermissions) === 'null')){
+                throw new TypeError("Parameter type mismatch. params.permissions must be string or null array");
+            }
+            if(!TypeUtil.isArray(params.publishPermissions) || (typeof(params.publishPermissions) === 'undefined') ||  (typeof(params.publishPermissions) === 'null')){
+                throw new TypeError("Parameter type mismatch. params.permissions must be string or null array");
             }
             // Arrays.asList causes crash.
-            var permissionSet = new NativeArrayList();
-            for(var index in params.permissions){
-                console.log(params.permissions[index]);
-                permissionSet.add(params.permissions[index])
+            var readPermissionSet = new NativeArrayList();
+            for(var index in params.readPermissions){
+                readPermissionSet.add(params.readPermissions[index])
             }
-            loginManager.logInWithReadPermissions(spratAndroidActivityInstance, permissionSet);
+            // Arrays.asList causes crash.
+            var publishPermissionSet = new NativeArrayList();
+            for(var index in params.publishPermissions){
+                publishPermissionSet.add(params.publishPermissions[index])
+            }
+            loginManager.logInWithReadPermissions(spratAndroidActivityInstance, readPermissionSet);
+            loginManager.logInWithPublishPermissions(spratAndroidActivityInstance, publishPermissionSet);
             loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
                 'onSuccess': function(loginResult){
+                    var grantedPermissions = [];
+                    var deniedPermissions = [];
+                    var iterator = loginResult.getRecentlyGrantedPermissions().iterator();
+                    
+                    while(iterator.hasNext()){
+                        grantedPermissions.push(iterator.next());
+                    }
+                    
+                    iterator = loginResult.getRecentlyDeniedPermissions().iterator();
+                    while(iterator.hasNext()){
+                        deniedPermissions.push(iterator.next());
+                    }
+                    
                     params.onSuccess && params.onSuccess({
-                        deniedPermissions: loginResult.getRecentlyDeniedPermissions().toArray(),
-                        grantedPermissions: loginResult.getRecentlyGrantedPermissions().toArray(),
+                        deniedPermissions: deniedPermissions,
+                        grantedPermissions: grantedPermissions,
                         accessToken: new Facebook.AccessToken({
                             nativeObject: loginResult.getAccessToken(),
                             isInternal: true
@@ -114,22 +135,35 @@ Object.defineProperties(Facebook, {
     },
     'graphRequest': {
         value: function(params){
+            const NativeBundle = requireClass('android.os.Bundle');
             var accessToken = Facebook.AccessToken.getCurrentToken();
-            var graphRequest = new NativeGraphRequest(accessToken.nativeObject, params.graphPath, params.parameters, params.httpMethod, NativeGraphRequest.Callback.implement({
-                'onCompleted': function(response){
-                    if(response.getError()){
-                        params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
+            var paramsBundle = null;
+            if(TypeUtil.isObject(params.parameters)){
+                paramsBundle = new NativeBundle();
+                Object.keys(params.parameters).forEach(function (key) {
+                    paramsBundle.putString(key, params.parameters[key] + '');
+                });
+            }
+            if(accessToken){
+                var graphRequest = new NativeGraphRequest(accessToken.nativeObject, params.graphPath, paramsBundle, params.httpMethod, NativeGraphRequest.Callback.implement({
+                    'onCompleted': function(response){
+                        if(response.getError()){
+                            params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
+                        }
+                        else{
+                            // var jsonObject = response.getJSONObject();
+                            // const NativeString = requireClass('java.lang.String');
+                            // var str = NativeString.valueOf(jsonObject);
+                            var response = response.getRawResponse();
+                            params.onSuccess && params.onSuccess(JSON.parse(response));
+                        }
                     }
-                    else{
-                        // var jsonObject = response.getJSONObject();
-                        // const NativeString = requireClass('java.lang.String');
-                        // var str = NativeString.valueOf(jsonObject);
-                        var response = response.getRawResponse();
-                        params.onSuccess && params.onSuccess(JSON.parse(response));
-                    }
-                }
-            }));
-            graphRequest.executeAsync();
+                }));
+                graphRequest.executeAsync();
+            }
+            else{
+                params.onFailure && params.onFailure(new Error("Not logged in."));
+            }
         },
         enumarable: true
     },

@@ -82,7 +82,8 @@ Facebook.sdkVersion;
  * @method login
  * @param {Object} params
  * @param {UI.Page} params.page
- * @param {String[]} params.permissions
+ * @param {String[]} params.readPermissions
+ * @param {String[]} params.publishPermissions
  * @param {Function} params.onSuccess
  * @param {Object} params.onSuccess.data
  * @param {String[]} params.onSuccess.data.deniedPermissions
