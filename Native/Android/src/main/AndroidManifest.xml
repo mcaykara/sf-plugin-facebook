@@ -17,11 +17,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="\ 280115889091464"/>
-
-        <provider android:authorities="com.facebook.app.FacebookContentProvider280115889091464"
-            android:name="com.facebook.FacebookContentProvider"
-            android:exported="true" />
     </application>
 
 </manifest>
