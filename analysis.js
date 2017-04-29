@@ -122,6 +122,148 @@ Facebook.login = function(params){};
 Facebook.graphRequest = function(params){};
 
 /**
+ * Share link content with share dialog.
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method shareFeedContent
+ * @param {Object} params
+ * @param {String} params.contentUrl
+ * @param {String[]} params.peopleIds
+ * @param {String} params.placeId
+ * @param {String} params.quote
+ * @param {String} params.ref
+ * @param {Facebook.ShareHastag} params.shareHashtag
+ * @param {Facebook.ShareMode} params.shareMode
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.shareLinkContent = function(params){};
+
+/**
+ * Share media content with share dialog.
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method shareMediaContent
+ * @param {Object} params
+ * @param {String} params.contentUrl
+ * @param {String[]} params.peopleIds
+ * @param {String} params.placeId
+ * @param {String} params.ref
+ * @param {Facebook.ShareHastag} params.shareHashtag
+ * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
+ * @param {Facebook.ShareMode} params.shareMode
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.shareMediaContent = function(params){};
+
+/**
+ * Share photo content with share dialog.
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method sharePhotoContent
+ * @param {Object} params
+ * @param {Facebook.SharePhoto[]|Facebook.SharePhoto} params.sharePhotos
+ * @param {String} params.contentUrl
+ * @param {String[]} params.peopleIds
+ * @param {String} params.placeId
+ * @param {String} params.ref
+ * @param {Facebook.ShareHastag} params.shareHashtag
+ * @param {Facebook.ShareMode} params.shareMode
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.sharePhotoContent = function(params){};
+
+/**
+ * Share video content with share dialog.
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method shareVideoContent
+ * @param {Object} params
+ * @param {String} params.contentDescription
+ * @param {String} params.contentTitle
+ * @param {String} params.contentUrl
+ * @param {String[]} params.peopleIds
+ * @param {String} params.placeId
+ * @param {Facebook.SharePhoto} params.previewPhoto
+ * @param {String} params.ref
+ * @param {Facebook.ShareHastag} params.shareHashtag
+ * @param {Facebook.ShareMode} params.shareMode
+ * @param {Facebook.ShareVideo} params.shareVideo
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.shareVideoContent = function(params){};
+
+/**
+ * Share feed content with share dialog.
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method shareFeedContent
+ * @param {Object} params
+ * @param {String} params.contentUrl
+ * @param {String} params.link
+ * @param {String} params.linkName
+ * @param {String} params.linkCaption
+ * @param {String} params.linkDescription
+ * @param {String} params.peopleIds
+ * @param {String} params.pictureUrl
+ * @param {String} params.pictureId
+ * @param {String} params.ref
+ * @param {Facebook.ShareHastag} params.shareHashtag
+ * @param {Facebook.ShareMode} params.shareMode
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.shareFeedContent = function(params){};
+
+/**
  * @class Facebook.AccessToken
  * @since 1.0
  *
@@ -182,6 +324,109 @@ Facebook.AccessToken = function(){
  */
 Facebook.AccessToken.getCurrentToken = function(){};
 
+/**
+ * @class Facebook.SharePhoto
+ * @since 1.0
+ *
+ * @todo add description
+ * 
+ *     @example
+ *     @todo add example
+ * 
+ */
+Facebook.SharePhoto = function(){
+    
+    /**
+     * @todo add description
+     * 
+     * @property {UI.Image} image
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.image;
+    
+    /**
+     * @todo add description
+     * 
+     * @property {String} contentUrl
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.contentUrl;
+    
+    /**
+     * @todo add description
+     * 
+     * @property {String} caption
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.caption;
+    
+    /**
+     * @todo add description
+     * 
+     * @property {Boolean} userGenerated
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.userGenerated;
+};
+
+/**
+ * @class Facebook.ShareVideo
+ * @since 1.0
+ *
+ * @todo add description
+ * 
+ *     @example
+ *     @todo add example
+ * 
+ */
+Facebook.ShareVideo = function(){
+    /**
+     * @todo add description
+     * 
+     * @property {String} localUrl
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.localUrl;
+};
+
+/**
+ * @class Facebook.ShareHashtag
+ * @since 1.0
+ *
+ * @todo add description
+ * 
+ *     @example
+ *     @todo add example
+ * 
+ */
+Facebook.ShareHashtag  = function(){
+    /**
+     * @todo add description
+     * 
+     * @property {String} localUrl
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.hashTag;
+};
+
 /** 
  * @enum Facebook.HttpMethod 
  * @since 1.0
@@ -226,5 +471,62 @@ Facebook.HttpMethod.POST;
  * @since 1.0
  */
 Facebook.HttpMethod.DELETE;
+
+/** 
+ * @enum Facebook.ShareMode 
+ * @since 1.0
+ * 
+ * @todo add description
+ * 
+ */
+Facebook.ShareMode = {};
+
+/**
+ * @todo add description
+ *
+ * @property AUTOMATIC
+ * @static
+ * @readonly
+ * @android
+ * @ios
+ * @since 1.0
+ */
+Facebook.ShareMode.AUTOMATIC;
+
+/**
+ * @todo add description
+ *
+ * @property FEED
+ * @static
+ * @readonly
+ * @android
+ * @ios
+ * @since 1.0
+ */
+Facebook.ShareMode.FEED;
+
+/**
+ * @todo add description
+ *
+ * @property NATIVE
+ * @static
+ * @readonly
+ * @android
+ * @ios
+ * @since 1.0
+ */
+Facebook.ShareMode.NATIVE;
+
+/**
+ * @todo add description
+ *
+ * @property WEB
+ * @static
+ * @readonly
+ * @android
+ * @ios
+ * @since 1.0
+ */
+Facebook.ShareMode.WEB;
 
 module.exports = Facebook;

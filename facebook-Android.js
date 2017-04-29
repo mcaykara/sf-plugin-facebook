@@ -12,9 +12,8 @@ const NativeGraphRequest                = requireClass('com.facebook.GraphReques
 
 var activity = Android.getActivity();
 var spratAndroidActivityInstance = requireClass("io.smartface.android.SpratAndroidActivity").getInstance();
-NativeFacebookSdk.sdkInitialize(activity);
-const loginManager = NativeLoginManager.getInstance();
-const callbackManager = NativeCallbackManager.Factory.create();
+var loginManager;
+var callbackManager;
 // Creating Activity Lifecycle listener
 var activityLifeCycleListener = NativeActivityLifeCycleListener.implement({
     onActivityResult: function(requestCode, resultCode, data){
@@ -36,6 +35,9 @@ Object.defineProperties(Facebook, {
                 throw new TypeError("Parameter type missmatch. applicationId must be string");
             }
             NativeFacebookSdk.setApplicationId(value);
+            NativeFacebookSdk.sdkInitialize(activity);
+            loginManager = NativeLoginManager.getInstance();
+            callbackManager = NativeCallbackManager.Factory.create();
         },
         enumarable: true
     },
