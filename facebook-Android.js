@@ -5,7 +5,7 @@ const NativeFacebookSdk                 = requireClass('com.facebook.FacebookSdk
 const NativeLoginManager                = requireClass('com.facebook.login.LoginManager');
 const NativeArrayList                   = requireClass('java.util.ArrayList');
 const NativeCallbackManager             = requireClass('com.facebook.CallbackManager');
-const NativeFacebokCallback             = requireClass('com.facebook.FacebookCallback');
+const NativeFacebookCallback            = requireClass('com.facebook.FacebookCallback');
 const NativeActivityLifeCycleListener   = requireClass('io.smartface.android.listeners.ActivityLifeCycleListener');
 const NativeAccessToken                 = requireClass('com.facebook.AccessToken');
 const NativeHttpMethod                  = requireClass('com.facebook.HttpMethod');
@@ -15,7 +15,6 @@ const NativeShareVideo                  = requireClass('com.facebook.share.model
 const NativeShareHashtag                = requireClass('com.facebook.share.model.ShareHashtag');
 const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
 const NativeUri                         = requireClass("android.net.Uri");
-const NativeShareDialog                 = requireClass('com.facebook.share.widget.ShareDialog');
 
 var activity = Android.getActivity();
 var spratAndroidActivityInstance = requireClass("io.smartface.android.SpratAndroidActivity").getInstance();
@@ -98,7 +97,7 @@ Object.defineProperties(Facebook, {
                 permissionsSet.add(params.permissions[index])
             }
             loginManager.logInWithReadPermissions(spratAndroidActivityInstance, permissionsSet);
-            loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
+            loginManager.registerCallback(callbackManager, NativeFacebookCallback.implement({
                 'onSuccess': function(loginResult){
                     var grantedPermissions = [];
                     var deniedPermissions = [];
@@ -147,7 +146,7 @@ Object.defineProperties(Facebook, {
                 permissionsSet.add(params.permissions[index]);
             }
             loginManager.logInWithPublishPermissions(spratAndroidActivityInstance, permissionsSet);
-            loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
+            loginManager.registerCallback(callbackManager, NativeFacebookCallback.implement({
                 'onSuccess': function(loginResult){
                     var grantedPermissions = [];
                     var deniedPermissions = [];
@@ -257,22 +256,22 @@ Object.defineProperties(Facebook, {
             if(!params){
                 throw new TypeError("params cannot be null");
             }
-            var shareContent = new NativeSharePhotoContent.Builder();
+            var shareContentBuilder = new NativeSharePhotoContent.Builder();
             if(params.sharePhotos){
                 if(TypeUtil.isArray(params.sharePhotos)){
                     for(var key in params.sharePhotos){
                         var shareObject = params.sharePhotos[key].nativeObject.build();
-                        shareContent.addPhoto(shareObject); 
+                        shareContentBuilder.addPhoto(shareObject); 
                     }
                 }
                 else{
                     var shareObject = params.sharePhotos.nativeObject.build();
-                    shareContent.addPhoto(shareObject);
+                    shareContentBuilder.addPhoto(shareObject);
                 }
             }
             if(TypeUtil.isString(params.contentUrl)){
                 var contentUri = NativeUri.parse(params.contentUrl);
-                shareContent.setContentUrl(contentUri);
+                shareContentBuilder.setContentUrl(contentUri);
             }
             if(TypeUtil.isArray(params.peopleIds)){
                 // Arrays.asList causes crash.
@@ -280,49 +279,35 @@ Object.defineProperties(Facebook, {
                 for(var index in params.peopleIds){
                     peopleIdsSet.add(params.peopleIds[index])
                 }
-                shareContent.setPeopleIds(peopleIdsSet);
+                shareContentBuilder.setPeopleIds(peopleIdsSet);
             }
             if(TypeUtil.isString(params.placeId)){
-                shareContent.setPlaceId(params.placeId);
+                shareContentBuilder.setPlaceId(params.placeId);
             }
             if(TypeUtil.isString(params.ref)){
-                shareContent.setRef(params.ref);
+                shareContentBuilder.setRef(params.ref);
             }
             if(params.shareHashtag instanceof Facebook.ShareHashtag){
                 var hashTagObject = params.shareHashtag.nativeObject.build();
-                shareContent.setShareHashtag(hashTagObject);
+                shareContentBuilder.setShareHashtag(hashTagObject);
             }
             
+            const NativeShareDialog = requireClass('com.facebook.share.widget.ShareDialog');
             var shareDialog = new NativeShareDialog(spratAndroidActivityInstance);
-            var shareMode = params.shareMode;
-            if(! (params.shareMode in Object.keys(Facebook.ShareMode))){
-                shareMode = Facebook.ShareMode.AUTOMATIC;
-            }
-            shareDialog.registerCallback(callbackManager, FacebookCallback.implement({
-                onSuccess: function(){
-                    
+            shareDialog.registerCallback(callbackManager, NativeFacebookCallback.implement({
+                onSuccess: function(result){
+                    params.onSuccess && params.onSuccess({postId: result.getPostId()});
                 },
                 onCancel: function(){
-                    
+                    params.onCancel && params.onCancel();
                 },
-                onError: function(){
-                    params.onFailure && params.onFailure();
+                onError: function(e){
+                    params.onFailure && params.onFailure(new Error(e.getMessage()));
                 }
             }));
-            shareDialog.show(shareContent, shareMode);
-            //  * @param {Object} params
-            //  * @param {Facebook.SharePhoto[]|Facebook.SharePhoto} params.sharePhotos
-            //  * @param {String} params.contentUrl
-            //  * @param {String[]} params.peopleIds
-            //  * @param {String} params.placeId
-            //  * @param {String} params.ref
-            //  * @param {Facebook.ShareHastag} params.shareHashtag
-            //  * @param {Facebook.ShareMode} params.shareMode
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
-            //  * @param {Function} params.onCancel            
+            
+            var shareContent = shareContentBuilder.build();
+            shareDialog.show(shareContent, createShareModeFromString(params.shareMode));       
         },
         enumarable: true
     },
@@ -394,24 +379,25 @@ Object.defineProperties(Facebook.HttpMethod, {
     }
 })
 
+// Requiring ShareDialog.Mode causes ExceptionInInitializerError crash so we should not use directly enums
 Object.defineProperties(Facebook.ShareMode, {
     'AUTOMATIC': {
-        value: NativeShareDialog.Mode.AUTOMATIC,
+        value: "AUTOMATIC",
         enumarable: true
     },
     'FEED': {
-        value: NativeShareDialog.Mode.FEED,
+        value: "FEED",
         enumarable: true
     },
     'NATIVE': {
-        value: NativeShareDialog.Mode.NATIVE,
+        value: "NATIVE",
         enumarable: true
     },
     'WEB': {
-        value: NativeShareDialog.Mode.WEB,
+        value: "WEB",
         enumarable: true
     }
-})
+});
 
 Facebook.AccessToken = function(params){
     if(!params.isInternal){
@@ -437,6 +423,28 @@ Facebook.AccessToken = function(params){
                 return new Date(this.nativeObject.getExpires().getTime());
             },
             enumarable: true
+        },
+        'declinedPermissions': {
+            get: function(){
+                var declinedPermissions = [];
+                var iterator = this.nativeObject().getDeclinedPermissions().iterator();
+                    
+                while(iterator.hasNext()){
+                    declinedPermissions.push(iterator.next());
+                }
+                return declinedPermissions;
+            }
+        },
+        'permissions': {
+            get: function(){
+                var permissions = [];
+                var iterator = this.nativeObject().getPermissions().iterator();
+                    
+                while(iterator.hasNext()){
+                    permissions.push(iterator.next());
+                }
+                return permissions;
+            }
         }
     });
 };
@@ -476,7 +484,8 @@ Facebook.SharePhoto = function(params){
                     throw new TypeError("image must be UI.Image");
                 }
                 _image = params.image;
-                this.nativeObject.setBitmap(_image.nativeObject);
+                var bitmap = _image.nativeObject.getBitmap()
+                this.nativeObject.setBitmap(bitmap);
             },
             enumarable: true
         },
@@ -586,5 +595,19 @@ Facebook.ShareHashtag = function(params){
         }
     }
 };
+
+function createShareModeFromString(value){
+    const NativeShareDialog = requireClass('com.facebook.share.widget.ShareDialog');
+    switch (value) {
+        case 'NATIVE':
+            return NativeShareDialog.Mode.AUTOMATIC;
+        case 'FEED':
+            return NativeShareDialog.Mode.FEED;
+        case 'WEB':
+            return NativeShareDialog.Mode.WEB;
+        default:
+            return NativeShareDialog.Mode.AUTOMATIC;
+    }
+}
 
 module.exports = Facebook;
