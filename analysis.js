@@ -153,6 +153,7 @@ Facebook.graphRequest = function(params){};
  *
  * @method shareLinkContent
  * @param {Object} params
+ * @param {UI.Page} params.page
  * @param {String} params.contentUrl
  * @param {String[]} params.peopleIds
  * @param {String} params.placeId
@@ -180,6 +181,7 @@ Facebook.shareLinkContent = function(params){};
  *
  * @method shareMediaContent
  * @param {Object} params
+ * @param {UI.Page} params.page
  * @param {String} params.contentUrl
  * @param {String[]} params.peopleIds
  * @param {String} params.placeId
@@ -207,6 +209,7 @@ Facebook.shareMediaContent = function(params){};
  *
  * @method sharePhotoContent
  * @param {Object} params
+ * @param {UI.Page} params.page
  * @param {Facebook.SharePhoto[]|Facebook.SharePhoto} params.sharePhotos
  * @param {String} params.contentUrl
  * @param {String[]} params.peopleIds
@@ -234,6 +237,7 @@ Facebook.sharePhotoContent = function(params){};
  *
  * @method shareVideoContent
  * @param {Object} params
+ * @param {UI.Page} params.page
  * @param {String} params.contentDescription
  * @param {String} params.contentTitle
  * @param {String} params.contentUrl
@@ -264,6 +268,7 @@ Facebook.shareVideoContent = function(params){};
  *
  * @method shareFeedContent
  * @param {Object} params
+ * @param {UI.Page} params.page
  * @param {String} params.contentUrl
  * @param {String} params.link
  * @param {String} params.linkName
