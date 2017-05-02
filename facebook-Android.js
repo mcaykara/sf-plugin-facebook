@@ -1,5 +1,6 @@
 const TypeUtil                          = require('sf-core/util/type');
 const Page                              = require('sf-core/ui/page');
+const Image                             = require('sf-core/ui/image');
 const NativeFacebookSdk                 = requireClass('com.facebook.FacebookSdk');
 const NativeLoginManager                = requireClass('com.facebook.login.LoginManager');
 const NativeArrayList                   = requireClass('java.util.ArrayList');
@@ -9,12 +10,17 @@ const NativeActivityLifeCycleListener   = requireClass('io.smartface.android.lis
 const NativeAccessToken                 = requireClass('com.facebook.AccessToken');
 const NativeHttpMethod                  = requireClass('com.facebook.HttpMethod');
 const NativeGraphRequest                = requireClass('com.facebook.GraphRequest');
+const NativeSharePhoto                  = requireClass('com.facebook.share.model.SharePhoto');
+const NativeShareVideo                  = requireClass('com.facebook.share.model.ShareVideo');
+const NativeShareHashtag                = requireClass('com.facebook.share.model.ShareHashtag');
+const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
+const NativeUri                         = requireClass("android.net.Uri");
+const NativeShareDialog                 = requireClass('com.facebook.share.widget.ShareDialog');
 
 var activity = Android.getActivity();
 var spratAndroidActivityInstance = requireClass("io.smartface.android.SpratAndroidActivity").getInstance();
-NativeFacebookSdk.sdkInitialize(activity);
-const loginManager = NativeLoginManager.getInstance();
-const callbackManager = NativeCallbackManager.Factory.create();
+var loginManager;
+var callbackManager;
 // Creating Activity Lifecycle listener
 var activityLifeCycleListener = NativeActivityLifeCycleListener.implement({
     onActivityResult: function(requestCode, resultCode, data){
@@ -36,6 +42,9 @@ Object.defineProperties(Facebook, {
                 throw new TypeError("Parameter type missmatch. applicationId must be string");
             }
             NativeFacebookSdk.setApplicationId(value);
+            NativeFacebookSdk.sdkInitialize(activity);
+            loginManager = NativeLoginManager.getInstance();
+            callbackManager = NativeCallbackManager.Factory.create();
         },
         enumarable: true
     },
@@ -75,26 +84,87 @@ Object.defineProperties(Facebook, {
         },
         enumarable: true
     },
-    'login' : {
+    'logInWithReadPermissions' : {
         value: function(params){
             if(!params.page instanceof Page){
                 throw new TypeError("Parameter type mismatch. params.page must be Page instance");
             }
             if(!TypeUtil.isArray(params.permissions)){
-                throw new TypeError("Parameter type mismatch. params.permissions must be string array");
+                throw new TypeError("Parameter type mismatch. params.permissions must be string or null array");
             }
             // Arrays.asList causes crash.
-            var permissionSet = new NativeArrayList();
+            var permissionsSet = new NativeArrayList();
             for(var index in params.permissions){
-                console.log(params.permissions[index]);
-                permissionSet.add(params.permissions[index])
+                permissionsSet.add(params.permissions[index])
             }
-            loginManager.logInWithReadPermissions(spratAndroidActivityInstance, permissionSet);
+            loginManager.logInWithReadPermissions(spratAndroidActivityInstance, permissionsSet);
             loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
                 'onSuccess': function(loginResult){
+                    var grantedPermissions = [];
+                    var deniedPermissions = [];
+                    var iterator = loginResult.getRecentlyGrantedPermissions().iterator();
+                    
+                    while(iterator.hasNext()){
+                        grantedPermissions.push(iterator.next());
+                    }
+                    
+                    iterator = loginResult.getRecentlyDeniedPermissions().iterator();
+                    while(iterator.hasNext()){
+                        deniedPermissions.push(iterator.next());
+                    }
+                    
                     params.onSuccess && params.onSuccess({
-                        deniedPermissions: loginResult.getRecentlyDeniedPermissions().toArray(),
-                        grantedPermissions: loginResult.getRecentlyGrantedPermissions().toArray(),
+                        deniedPermissions: deniedPermissions,
+                        grantedPermissions: grantedPermissions,
+                        accessToken: new Facebook.AccessToken({
+                            nativeObject: loginResult.getAccessToken(),
+                            isInternal: true
+                        })
+                    });
+                },
+                'onCancel': function(){
+                    params.onCancel && params.onCancel();
+                },
+                'onError': function(error) {
+                    params.onFailure && params.onFailure(new Error(error.getMessage()));
+                }
+            }));
+            
+        },
+        enumarable: true
+    },
+    'logInWithPublishPermissions' : {
+        value: function(params){
+            if(!params.page instanceof Page){
+                throw new TypeError("Parameter type mismatch. params.page must be Page instance");
+            }
+            if(!TypeUtil.isArray(params.permissions)){
+                throw new TypeError("Parameter type mismatch. params.permissions must be string or null array");
+            }
+            // Arrays.asList causes crash.
+            var permissionsSet = new NativeArrayList();
+            for(var index in params.permissions){
+                permissionsSet.add(params.permissions[index]);
+            }
+            loginManager.logInWithPublishPermissions(spratAndroidActivityInstance, permissionsSet);
+            loginManager.registerCallback(callbackManager, NativeFacebokCallback.implement({
+                'onSuccess': function(loginResult){
+                    var grantedPermissions = [];
+                    var deniedPermissions = [];
+                    var iterator = loginResult.getRecentlyGrantedPermissions().iterator();
+                    
+                    while(iterator.hasNext()){
+                        grantedPermissions.push(iterator.next());
+                    }
+                    
+                    iterator = loginResult.getRecentlyDeniedPermissions().iterator();
+                    while(iterator.hasNext()){
+                        deniedPermissions.push(iterator.next());
+                    }
+                    
+                    params.onSuccess && params.onSuccess({
+                        deniedPermissions: deniedPermissions,
+                        grantedPermissions: grantedPermissions,
                         accessToken: new Facebook.AccessToken({
                             nativeObject: loginResult.getAccessToken(),
                             isInternal: true
@@ -114,30 +184,234 @@ Object.defineProperties(Facebook, {
     },
     'graphRequest': {
         value: function(params){
+            const NativeBundle = requireClass('android.os.Bundle');
             var accessToken = Facebook.AccessToken.getCurrentToken();
-            var graphRequest = new NativeGraphRequest(accessToken.nativeObject, params.graphPath, params.parameters, params.httpMethod, NativeGraphRequest.Callback.implement({
-                'onCompleted': function(response){
-                    if(response.getError()){
-                        params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
+            var paramsBundle = null;
+            if(params.parameters){
+                paramsBundle = new NativeBundle();
+                Object.keys(params.parameters).forEach(function (key) {
+                    paramsBundle.putString(key, params.parameters[key] + '');
+                });
+            }
+            if(accessToken){
+                var graphRequest = new NativeGraphRequest(accessToken.nativeObject, params.graphPath, paramsBundle, params.httpMethod, NativeGraphRequest.Callback.implement({
+                    'onCompleted': function(response){
+                        if(response.getError()){
+                            params.onFailure && params.onFailure(new Error(response.getError().getErrorMessage()));
+                        }
+                        else{
+                            // var jsonObject = response.getJSONObject();
+                            // const NativeString = requireClass('java.lang.String');
+                            // var str = NativeString.valueOf(jsonObject);
+                            var response = response.getRawResponse();
+                            params.onSuccess && params.onSuccess(JSON.parse(response));
+                        }
                     }
-                    else{
-                        // var jsonObject = response.getJSONObject();
-                        // const NativeString = requireClass('java.lang.String');
-                        // var str = NativeString.valueOf(jsonObject);
-                        var response = response.getRawResponse();
-                        params.onSuccess && params.onSuccess(JSON.parse(response));
+                }));
+                graphRequest.executeAsync();
+            }
+            else{
+                params.onFailure && params.onFailure(new Error("Not logged in."));
+            }
+        },
+        enumarable: true
+    },
+    'shareLinkContent': {
+        value: function(params){
+            //  * @param {Object} params
+            //  * @param {String} params.contentUrl
+            //  * @param {String[]} params.peopleIds
+            //  * @param {String} params.placeId
+            //  * @param {String} params.quote
+            //  * @param {String} params.ref
+            //  * @param {Facebook.ShareHastag} params.shareHashtag
+            //  * @param {Facebook.ShareMode} params.shareMode
+            //  * @param {Function} params.onSuccess
+            //  * @param {Object} params.onSuccess.data
+            //  * @param {Function} params.onFailure
+            //  * @param {Object} params.onFailure.error
+            //  * @param {Function} params.onCancel
+        },
+        enumarable: true
+    },
+    'shareMediaContent': {
+        value: function(params){
+            //  * @param {Object} params
+            //  * @param {String} params.contentUrl
+            //  * @param {String[]} params.peopleIds
+            //  * @param {String} params.placeId
+            //  * @param {String} params.ref
+            //  * @param {Facebook.ShareHastag} params.shareHashtag
+            //  * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
+            //  * @param {Facebook.ShareMode} params.shareMode
+            //  * @param {Function} params.onSuccess
+            //  * @param {Object} params.onSuccess.data
+            //  * @param {Function} params.onFailure
+            //  * @param {Object} params.onFailure.error
+            //  * @param {Function} params.onCancel
+        },
+        enumarable: true
+    },
+    'sharePhotoContent': {
+        value: function(params){
+            if(!params){
+                throw new TypeError("params cannot be null");
+            }
+            var shareContent = new NativeSharePhotoContent.Builder();
+            if(params.sharePhotos){
+                if(TypeUtil.isArray(params.sharePhotos)){
+                    for(var key in params.sharePhotos){
+                        var shareObject = params.sharePhotos[key].nativeObject.build();
+                        shareContent.addPhoto(shareObject); 
                     }
                 }
+                else{
+                    var shareObject = params.sharePhotos.nativeObject.build();
+                    shareContent.addPhoto(shareObject);
+                }
+            }
+            if(TypeUtil.isString(params.contentUrl)){
+                var contentUri = NativeUri.parse(params.contentUrl);
+                shareContent.setContentUrl(contentUri);
+            }
+            if(TypeUtil.isArray(params.peopleIds)){
+                // Arrays.asList causes crash.
+                var peopleIdsSet = new NativeArrayList();
+                for(var index in params.peopleIds){
+                    peopleIdsSet.add(params.peopleIds[index])
+                }
+                shareContent.setPeopleIds(peopleIdsSet);
+            }
+            if(TypeUtil.isString(params.placeId)){
+                shareContent.setPlaceId(params.placeId);
+            }
+            if(TypeUtil.isString(params.ref)){
+                shareContent.setRef(params.ref);
+            }
+            if(params.shareHashtag instanceof Facebook.ShareHashtag){
+                var hashTagObject = params.shareHashtag.nativeObject.build();
+                shareContent.setShareHashtag(hashTagObject);
+            }
+            
+            var shareDialog = new NativeShareDialog(spratAndroidActivityInstance);
+            var shareMode = params.shareMode;
+            if(! (params.shareMode in Object.keys(Facebook.ShareMode))){
+                shareMode = Facebook.ShareMode.AUTOMATIC;
+            }
+            shareDialog.registerCallback(callbackManager, FacebookCallback.implement({
+                onSuccess: function(){
+                    
+                },
+                onCancel: function(){
+                    
+                },
+                onError: function(){
+                    params.onFailure && params.onFailure();
+                }
             }));
-            graphRequest.executeAsync();
+            shareDialog.show(shareContent, shareMode);
+            //  * @param {Object} params
+            //  * @param {Facebook.SharePhoto[]|Facebook.SharePhoto} params.sharePhotos
+            //  * @param {String} params.contentUrl
+            //  * @param {String[]} params.peopleIds
+            //  * @param {String} params.placeId
+            //  * @param {String} params.ref
+            //  * @param {Facebook.ShareHastag} params.shareHashtag
+            //  * @param {Facebook.ShareMode} params.shareMode
+            //  * @param {Function} params.onSuccess
+            //  * @param {Object} params.onSuccess.data
+            //  * @param {Function} params.onFailure
+            //  * @param {Object} params.onFailure.error
+            //  * @param {Function} params.onCancel            
+        },
+        enumarable: true
+    },
+    'shareVideoContent': {
+        value: function(params){
+            //  * @param {Object} params
+            //  * @param {String} params.contentDescription
+            //  * @param {String} params.contentTitle
+            //  * @param {String} params.contentUrl
+            //  * @param {String[]} params.peopleIds
+            //  * @param {String} params.placeId
+            //  * @param {Facebook.SharePhoto} params.previewPhoto
+            //  * @param {String} params.ref
+            //  * @param {Facebook.ShareHastag} params.shareHashtag
+            //  * @param {Facebook.ShareMode} params.shareMode
+            //  * @param {Facebook.ShareVideo} params.shareVideo
+            //  * @param {Function} params.onSuccess
+            //  * @param {Object} params.onSuccess.data
+            //  * @param {Function} params.onFailure
+            //  * @param {Object} params.onFailure.error
+            //  * @param {Function} params.onCancel            
+        },
+        enumarable: true
+    },
+    'shareFeedContent': {
+        value: function(params){
+            //  * @param {Object} params
+            //  * @param {String} params.contentUrl
+            //  * @param {String} params.link
+            //  * @param {String} params.linkName
+            //  * @param {String} params.linkCaption
+            //  * @param {String} params.linkDescription
+            //  * @param {String} params.peopleIds
+            //  * @param {String} params.pictureUrl
+            //  * @param {String} params.pictureId
+            //  * @param {String} params.ref
+            //  * @param {Facebook.ShareHastag} params.shareHashtag
+            //  * @param {Facebook.ShareMode} params.shareMode
+            //  * @param {Function} params.onSuccess
+            //  * @param {Object} params.onSuccess.data
+            //  * @param {Function} params.onFailure
+            //  * @param {Object} params.onFailure.error
+            //  * @param {Function} params.onCancel            
         },
         enumarable: true
     },
     'HttpMethod': {
         value: {},
         enumarable: true
+    },
+    'ShareMode': {
+        value: {},
+        enumarable: true
     }
 });
+
+Object.defineProperties(Facebook.HttpMethod, {
+    'GET': {
+        value: NativeHttpMethod.GET,
+        enumarable: true
+    },
+    'POST': {
+        value: NativeHttpMethod.POST,
+        enumarable: true
+    },
+    'DELETE': {
+        value: NativeHttpMethod.DELETE,
+        enumarable: true
+    }
+})
+
+Object.defineProperties(Facebook.ShareMode, {
+    'AUTOMATIC': {
+        value: NativeShareDialog.Mode.AUTOMATIC,
+        enumarable: true
+    },
+    'FEED': {
+        value: NativeShareDialog.Mode.FEED,
+        enumarable: true
+    },
+    'NATIVE': {
+        value: NativeShareDialog.Mode.NATIVE,
+        enumarable: true
+    },
+    'WEB': {
+        value: NativeShareDialog.Mode.WEB,
+        enumarable: true
+    }
+})
 
 Facebook.AccessToken = function(params){
     if(!params.isInternal){
@@ -185,20 +459,132 @@ Object.defineProperties(Facebook.AccessToken, {
     }
 })
 
-Object.defineProperties(Facebook.HttpMethod, {
-    'GET': {
-        value: NativeHttpMethod.GET,
-        enumarable: true
-    },
-    'POST': {
-        value: NativeHttpMethod.POST,
-        enumarable: true
-    },
-    'DELETE': {
-        value: NativeHttpMethod.DELETE,
-        enumarable: true
+Facebook.SharePhoto = function(params){
+    this.nativeObject = new NativeSharePhoto.Builder();
+    var _userGenerated;
+    var _imageUrl;
+    var _caption;
+    var _image;
+    
+    Object.defineProperties(this, {
+        'image': {
+            get: function(){
+                return _image;
+            },
+            set: function(value){
+                if(!(value instanceof Image)){
+                    throw new TypeError("image must be UI.Image");
+                }
+                _image = params.image;
+                this.nativeObject.setBitmap(_image.nativeObject);
+            },
+            enumarable: true
+        },
+        'imageUrl': {
+            get: function(){
+                return _imageUrl;
+            },
+            set: function(value){
+                if(!TypeUtil.isString(value)){
+                    throw new TypeError("imageUrl must be string");
+                }
+                _imageUrl = value;
+                var imageUri = NativeUri.parse(_imageUrl);
+                this.nativeObject.setImageUrl(imageUri);
+            },
+            enumarable: true
+        },
+        'caption': {
+            get: function(){
+                return _caption;
+            },
+            set: function(value){
+                if(!TypeUtil.isString(value)){
+                    throw new TypeError("caption must be string");
+                }
+                _caption = value;
+                this.nativeObject.setCaption(_caption);
+            },
+            enumarable: true
+        },
+        'userGenerated': {
+            get: function(){
+                return _userGenerated;
+            },
+            set: function(value){
+                if(!TypeUtil.isBoolean(params.userGenerated)){
+                    throw new TypeError("userGenerated must be boolean");
+                }
+                _userGenerated = params.userGenerated;
+                this.nativeObject.setUserGenerated(_userGenerated);
+            },
+            enumarable: true
+        },
+    });
+    
+    // Assign parameters given in constructor
+    if (params) {
+        for (var param in params) {
+            this[param] = params[param];
+        }
     }
-})
+};
 
+Facebook.ShareVideo = function(params){
+    this.nativeObject = new NativeShareVideo.Builder();
+    var _localUrl;
+    
+    Object.defineProperties(this, {
+        'localUrl': {
+            get: function(){
+                return _localUrl;
+            },
+            set: function(value){
+                if(!TypeUtil.isString(value)){
+                    throw new TypeError("localUrl must be string");
+                }
+                _localUrl = value;
+                var localUri = NativeUri.parse(_localUrl);
+                this.nativeObject.setLocalUrl(localUri);
+            },
+            enumarable: true
+        }
+    });
+    
+    // Assign parameters given in constructor
+    if (params) {
+        for (var param in params) {
+            this[param] = params[param];
+        }
+    }
+};
+
+Facebook.ShareHashtag = function(params){
+    this.nativeObject = new NativeShareHashtag.Builder();
+    var _hashTag;
+    
+    Object.defineProperties(this, {
+        'hashTag': {
+            get: function(){
+                return _hashTag;
+            },
+            set: function(value){
+                if(!TypeUtil.isString(value)){
+                    throw new TypeError("hashTag must be string");
+                }
+                _hashTag = params.hashTag;
+                this.nativeObject.setHashtag(_hashTag);
+            },
+            enumarable: true
+        }
+    });
+    
+    // Assign parameters given in constructor
+    if (params) {
+        for (var param in params) {
+            this[param] = params[param];
+        }
+    }
+};
 
 module.exports = Facebook;
