@@ -14,7 +14,8 @@ const NativeSharePhoto                  = requireClass('com.facebook.share.model
 const NativeShareVideo                  = requireClass('com.facebook.share.model.ShareVideo');
 const NativeShareHashtag                = requireClass('com.facebook.share.model.ShareHashtag');
 const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
-const NativeShareLinkContent           = requireClass('com.facebook.share.model.ShareLinkContent');
+const NativeShareLinkContent            = requireClass('com.facebook.share.model.ShareLinkContent');
+const NativeShareFeedContent            = requireClass('com.facebook.share.model.ShareFeedContent');
 const NativeUri                         = requireClass("android.net.Uri");
 
 var activity = Android.getActivity();
@@ -358,16 +359,62 @@ Object.defineProperties(Facebook, {
     },
     'shareFeedContent': {
         value: function(params){
-            //  * @param {Object} params
-            //  * @param {String} params.contentUrl
-            //  * @param {String} params.link
-            //  * @param {String} params.linkName
-            //  * @param {String} params.linkCaption
-            //  * @param {String} params.linkDescription
-            //  * @param {String} params.peopleIds
-            //  * @param {String} params.pictureUrl
-            //  * @param {String} params.pictureId
-            //  * @param {String} params.ref
+            if(!params){
+                throw new TypeError("params cannot be null");
+            }
+            var shareContentBuilder = new NativeShareFeedContent.Builder();
+            if(TypeUtil.isString(params.contentUrl)){
+                var contentUri = NativeUri.parse(params.contentUrl);
+                shareContentBuilder.setContentUrl(contentUri);
+            }
+            if(TypeUtil.isString(params.link)){
+                shareContentBuilder.setLink(params.link);
+            }
+            if(TypeUtil.isString(params.linkName)){
+                shareContentBuilder.setLinkName(params.linkName);
+            }
+            if(TypeUtil.isString(params.linkCaption)){
+                shareContentBuilder.setLinkCaption(params.linkCaption);
+            }
+            if(TypeUtil.isString(params.linkDescription)){
+                shareContentBuilder.setLinkDescription(params.linkDescription);
+            }
+            if(TypeUtil.isString(params.mediaSource)){
+                shareContentBuilder.setMediaSource(params.mediaSource);
+            }
+            if(TypeUtil.isArray(params.peopleIds)){
+                // Arrays.asList causes crash.
+                var peopleIdsSet = new NativeArrayList();
+                for(var index in params.peopleIds){
+                    peopleIdsSet.add(params.peopleIds[index]);
+                }
+                shareContentBuilder.setPeopleIds(peopleIdsSet);
+            }
+            if(TypeUtil.isString(params.picture)){
+                shareContentBuilder.setPicture(params.picture);
+            }
+            if(TypeUtil.isString(params.placeId)){
+                shareContentBuilder.setPlaceId(params.placeId);
+            }
+            if(TypeUtil.isString(params.ref)){
+                shareContentBuilder.setRef(params.ref);
+            }
+            if(params.shareHashtag instanceof Facebook.ShareHashtag){
+                var hashTagObject = params.shareHashtag.nativeObject.build();
+                shareContentBuilder.setShareHashtag(hashTagObject);
+            }
+            
+            createAndRegisterShareDialog(shareContentBuilder.build(), createShareModeFromString(params.shareMode),
+            function(result){
+                params.onSuccess && params.onSuccess({postId: result.getPostId()});
+            },
+            function(e) {
+                params.onFailure && params.onFailure(new Error(e.getMessage()));
+            },
+            function() {
+                params.onCancel && params.onCancel();
+            });
+            
             //  * @param {Facebook.ShareHastag} params.shareHashtag
             //  * @param {Facebook.ShareMode} params.shareMode
             //  * @param {Function} params.onSuccess

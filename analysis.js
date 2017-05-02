@@ -274,9 +274,10 @@ Facebook.shareVideoContent = function(params){};
  * @param {String} params.linkName
  * @param {String} params.linkCaption
  * @param {String} params.linkDescription
- * @param {String} params.peopleIds
- * @param {String} params.pictureUrl
- * @param {String} params.pictureId
+ * @param {String} params.mediaSource
+ * @param {String[]} params.peopleIds
+ * @param {String} params.picture
+ * @param {String} params.placeId
  * @param {String} params.ref
  * @param {Facebook.ShareHastag} params.shareHashtag
  * @param {Facebook.ShareMode} params.shareMode
