@@ -161,7 +161,7 @@ Facebook.graphRequest = function(params){};
  * @param {Facebook.ShareHastag} params.shareHashtag
  * @param {Facebook.ShareMode} params.shareMode
  * @param {Function} params.onSuccess
- * @param {Object} params.onSuccess.data
+ * @param {String} params.onSuccess.postId
  * @param {Function} params.onFailure
  * @param {Object} params.onFailure.error
  * @param {Function} params.onCancel
@@ -188,7 +188,7 @@ Facebook.shareLinkContent = function(params){};
  * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
  * @param {Facebook.ShareMode} params.shareMode
  * @param {Function} params.onSuccess
- * @param {Object} params.onSuccess.data
+ * @param {String} params.onSuccess.postId
  * @param {Function} params.onFailure
  * @param {Object} params.onFailure.error
  * @param {Function} params.onCancel
@@ -215,7 +215,7 @@ Facebook.shareMediaContent = function(params){};
  * @param {Facebook.ShareHastag} params.shareHashtag
  * @param {Facebook.ShareMode} params.shareMode
  * @param {Function} params.onSuccess
- * @param {Object} params.onSuccess.data
+ * @param {String} params.onSuccess.postId
  * @param {Function} params.onFailure
  * @param {Object} params.onFailure.error
  * @param {Function} params.onCancel
@@ -245,7 +245,7 @@ Facebook.sharePhotoContent = function(params){};
  * @param {Facebook.ShareMode} params.shareMode
  * @param {Facebook.ShareVideo} params.shareVideo
  * @param {Function} params.onSuccess
- * @param {Object} params.onSuccess.data
+ * @param {String} params.onSuccess.postId
  * @param {Function} params.onFailure
  * @param {Object} params.onFailure.error
  * @param {Function} params.onCancel
@@ -276,7 +276,7 @@ Facebook.shareVideoContent = function(params){};
  * @param {Facebook.ShareHastag} params.shareHashtag
  * @param {Facebook.ShareMode} params.shareMode
  * @param {Function} params.onSuccess
- * @param {Object} params.onSuccess.data
+ * @param {String} params.onSuccess.postId
  * @param {Function} params.onFailure
  * @param {Object} params.onFailure.error
  * @param {Function} params.onCancel
@@ -331,6 +331,28 @@ Facebook.AccessToken = function(){
      * @since 1.0
      */
     this.expireDate;
+    
+    /**
+     * @todo add description
+     * 
+     * @property {String[]} declinedPermissions
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.declinedPermissions;
+    
+    /**
+     * @todo add description
+     * 
+     * @property {String[]} permissions
+     * @readonly
+     * @android
+     * @ios
+     * @since 1.0
+     */
+    this.permissions;
 };
 
 /**
