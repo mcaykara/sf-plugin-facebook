@@ -79,11 +79,10 @@ Facebook.sdkVersion;
  *     @example
  *     @todo add example
  *
- * @method login
+ * @method logInWithPublishPermissions
  * @param {Object} params
  * @param {UI.Page} params.page
- * @param {String[]} params.readPermissions
- * @param {String[]} params.publishPermissions
+ * @param {String[]} params.permissions
  * @param {Function} params.onSuccess
  * @param {Object} params.onSuccess.data
  * @param {String[]} params.onSuccess.data.deniedPermissions
@@ -97,7 +96,32 @@ Facebook.sdkVersion;
  * @static
  * @since 1.0
  */
-Facebook.login = function(params){};
+Facebook.logInWithPublishPermissions = function(params){};
+
+/**
+ * @todo add description
+ * 
+ *     @example
+ *     @todo add example
+ *
+ * @method logInWithReadPermissions
+ * @param {Object} params
+ * @param {UI.Page} params.page
+ * @param {String[]} params.permissions
+ * @param {Function} params.onSuccess
+ * @param {Object} params.onSuccess.data
+ * @param {String[]} params.onSuccess.data.deniedPermissions
+ * @param {String[]} params.onSuccess.data.grantedPermissions
+ * @param {Facebook.AccessToken} params.onSuccess.data.accessToken
+ * @param {Function} params.onFailure
+ * @param {Object} params.onFailure.error
+ * @param {Function} params.onCancel
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.logInWithReadPermissions = function(params){};
 
 /**
  * @todo add description
@@ -127,7 +151,7 @@ Facebook.graphRequest = function(params){};
  *     @example
  *     @todo add example
  *
- * @method shareFeedContent
+ * @method shareLinkContent
  * @param {Object} params
  * @param {String} params.contentUrl
  * @param {String[]} params.peopleIds
@@ -337,10 +361,9 @@ Facebook.AccessToken.getCurrentToken = function(){};
 Facebook.SharePhoto = function(){
     
     /**
-     * @todo add description
+     * @todo add description. Required on constructor.
      * 
      * @property {UI.Image} image
-     * @readonly
      * @android
      * @ios
      * @since 1.0
@@ -350,19 +373,17 @@ Facebook.SharePhoto = function(){
     /**
      * @todo add description
      * 
-     * @property {String} contentUrl
-     * @readonly
+     * @property {String} imageUrl
      * @android
      * @ios
      * @since 1.0
      */
-    this.contentUrl;
+    this.imageUrl;
     
     /**
      * @todo add description
      * 
      * @property {String} caption
-     * @readonly
      * @android
      * @ios
      * @since 1.0
@@ -373,7 +394,6 @@ Facebook.SharePhoto = function(){
      * @todo add description
      * 
      * @property {Boolean} userGenerated
-     * @readonly
      * @android
      * @ios
      * @since 1.0
@@ -396,7 +416,6 @@ Facebook.ShareVideo = function(){
      * @todo add description
      * 
      * @property {String} localUrl
-     * @readonly
      * @android
      * @ios
      * @since 1.0
@@ -419,7 +438,6 @@ Facebook.ShareHashtag  = function(){
      * @todo add description
      * 
      * @property {String} localUrl
-     * @readonly
      * @android
      * @ios
      * @since 1.0
