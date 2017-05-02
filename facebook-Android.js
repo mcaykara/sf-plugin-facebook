@@ -14,6 +14,7 @@ const NativeSharePhoto                  = requireClass('com.facebook.share.model
 const NativeShareVideo                  = requireClass('com.facebook.share.model.ShareVideo');
 const NativeShareHashtag                = requireClass('com.facebook.share.model.ShareHashtag');
 const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
+const NativeShareLinkContent           = requireClass('com.facebook.share.model.ShareLinkContent');
 const NativeUri                         = requireClass("android.net.Uri");
 
 var activity = Android.getActivity();
@@ -217,19 +218,47 @@ Object.defineProperties(Facebook, {
     },
     'shareLinkContent': {
         value: function(params){
-            //  * @param {Object} params
-            //  * @param {String} params.contentUrl
-            //  * @param {String[]} params.peopleIds
-            //  * @param {String} params.placeId
-            //  * @param {String} params.quote
-            //  * @param {String} params.ref
-            //  * @param {Facebook.ShareHastag} params.shareHashtag
-            //  * @param {Facebook.ShareMode} params.shareMode
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
-            //  * @param {Function} params.onCancel
+            if(!params){
+                throw new TypeError("params cannot be null");
+            }
+            var shareContentBuilder = new NativeShareLinkContent.Builder();
+            
+            if(TypeUtil.isString(params.contentUrl)){
+                var contentUri = NativeUri.parse(params.contentUrl);
+                shareContentBuilder.setContentUrl(contentUri);
+            }
+            if(TypeUtil.isArray(params.peopleIds)){
+                // Arrays.asList causes crash.
+                var peopleIdsSet = new NativeArrayList();
+                for(var index in params.peopleIds){
+                    peopleIdsSet.add(params.peopleIds[index])
+                }
+                shareContentBuilder.setPeopleIds(peopleIdsSet);
+            }
+            if(TypeUtil.isString(params.placeId)){
+                shareContentBuilder.setPlaceId(params.placeId);
+            }
+            if(TypeUtil.isString(params.quote)){
+                shareContentBuilder.setQuote(params.quote);
+            }
+            if(TypeUtil.isString(params.ref)){
+                shareContentBuilder.setRef(params.ref);
+            }
+            if(params.shareHashtag instanceof Facebook.ShareHashtag){
+                var hashTagObject = params.shareHashtag.nativeObject.build();
+                shareContentBuilder.setShareHashtag(hashTagObject);
+            }
+
+            createAndRegisterShareDialog(shareContentBuilder.build(), createShareModeFromString(params.shareMode),
+            function(result){
+                params.onSuccess && params.onSuccess({postId: result.getPostId()});
+            },
+            function(e) {
+                params.onFailure && params.onFailure(new Error(e.getMessage()));
+            },
+            function() {
+                params.onCancel && params.onCancel();
+            });
         },
         enumarable: true
     },
@@ -292,22 +321,17 @@ Object.defineProperties(Facebook, {
                 shareContentBuilder.setShareHashtag(hashTagObject);
             }
             
-            const NativeShareDialog = requireClass('com.facebook.share.widget.ShareDialog');
-            var shareDialog = new NativeShareDialog(spratAndroidActivityInstance);
-            shareDialog.registerCallback(callbackManager, NativeFacebookCallback.implement({
-                onSuccess: function(result){
-                    params.onSuccess && params.onSuccess({postId: result.getPostId()});
-                },
-                onCancel: function(){
-                    params.onCancel && params.onCancel();
-                },
-                onError: function(e){
-                    params.onFailure && params.onFailure(new Error(e.getMessage()));
-                }
-            }));
-            
-            var shareContent = shareContentBuilder.build();
-            shareDialog.show(shareContent, createShareModeFromString(params.shareMode));       
+            createAndRegisterShareDialog(shareContentBuilder.build(), createShareModeFromString(params.shareMode),
+            function(result){
+                params.onSuccess && params.onSuccess({postId: result.getPostId()});
+            },
+            function(e) {
+                params.onFailure && params.onFailure(new Error(e.getMessage()));
+            },
+            function() {
+                params.onCancel && params.onCancel();
+            });
+                   
         },
         enumarable: true
     },
@@ -608,6 +632,24 @@ function createShareModeFromString(value){
         default:
             return NativeShareDialog.Mode.AUTOMATIC;
     }
+}
+
+function createAndRegisterShareDialog(shareContent, shareMode, onSuccess, onFailure, onCancel){
+    const NativeShareDialog = requireClass('com.facebook.share.widget.ShareDialog');
+    var shareDialog = new NativeShareDialog(spratAndroidActivityInstance);
+    shareDialog.registerCallback(callbackManager, NativeFacebookCallback.implement({
+        onSuccess: function(result){
+            onSuccess && onSuccess(result);
+        },
+        onCancel: function(){
+            onCancel && onCancel();
+        },
+        onError: function(e){
+            onFailure && onFailure(e);
+        }
+    }));
+    
+    shareDialog.show(shareContent, shareMode);
 }
 
 module.exports = Facebook;
