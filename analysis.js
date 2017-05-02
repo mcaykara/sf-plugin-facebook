@@ -1,5 +1,5 @@
 /**
- * @class Data.Database
+ * @class Facebook
  * @since 1.0
  * @see https://developers.facebook.com/
  * @see https://developer.smartface.io/v1.1/docs/facebook-plugin
@@ -458,13 +458,16 @@ Facebook.ShareVideo = function(){
  * 
  *     @example
  *     @todo add example
- * 
+ *     @param {Object} params
+ *     @param {String} params.hashTag
  */
-Facebook.ShareHashtag  = function(){
+Facebook.ShareHashtag  = function(params){
+
     /**
      * @todo add description
      * 
-     * @property {String} localUrl
+     * @property {String} hashTag
+     * @readonly
      * @android
      * @ios
      * @since 1.0
