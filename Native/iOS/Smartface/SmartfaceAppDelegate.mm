@@ -23,6 +23,7 @@
 #import "FBSDKSettings+SF.h"
 #import "FBSDKLoginManager+SF.h"
 #import "FBSDKGraphRequest+SF.h"
+#import "FBSDKShareDialog+SF.h"
 
 @implementation SmartfaceAppDelegate
 
@@ -167,6 +168,33 @@
     class_addProtocol([FBSDKGraphRequest class], @protocol(FBSDKGraphRequestExport));
     class_addProtocol(object_getClass([FBSDKGraphRequest class]), @protocol(FBSDKGraphRequestExport));
     context[@"FBSDKGraphRequest"] = [FBSDKGraphRequest class];
+    
+    class_addProtocol([FBSDKShareDialog class], @protocol(FBSDKShareDialogExport));
+    class_addProtocol(object_getClass([FBSDKShareDialog class]), @protocol(FBSDKShareDialogExport));
+    context[@"FBSDKShareDialog"] = [FBSDKShareDialog class];
+    
+    class_addProtocol([FBSDKSharingDelegate class], @protocol(FBSDKSharingDelegateExport));
+    class_addProtocol(object_getClass([FBSDKSharingDelegate class]), @protocol(FBSDKSharingDelegateExport));
+    context[@"FBSDKSharingDelegate"] = [FBSDKSharingDelegate class];
+    
+    class_addProtocol([FBSDKShareLinkContent class], @protocol(FBSDKShareLinkContentExport));
+    class_addProtocol(object_getClass([FBSDKShareLinkContent class]), @protocol(FBSDKShareLinkContentExport));
+    context[@"FBSDKShareLinkContent"] = [FBSDKShareLinkContent class];
+    
+    class_addProtocol([FBSDKHashtag class], @protocol(FBSDKHashtagExport));
+    class_addProtocol(object_getClass([FBSDKHashtag class]), @protocol(FBSDKHashtagExport));
+    context[@"FBSDKHashtag"] = [FBSDKHashtag class];
+    
+    class_addProtocol([FBSDKSharePhoto class], @protocol(FBSDKSharePhotoExport));
+    class_addProtocol(object_getClass([FBSDKSharePhoto class]), @protocol(FBSDKSharePhotoExport));
+    context[@"FBSDKSharePhoto"] = [FBSDKSharePhoto class];
+    
+    class_addProtocol([FBSDKSharePhotoContent class], @protocol(FBSDKSharePhotoContentExport));
+    class_addProtocol(object_getClass([FBSDKSharePhotoContent class]), @protocol(FBSDKSharePhotoContentExport));
+    context[@"FBSDKSharePhotoContent"] = [FBSDKSharePhotoContent class];
+    
+    context[@"FBSDKErrorDeveloperMessageKey"] = FBSDKErrorDeveloperMessageKey;
+    
     /*
      
      1. Register plugin's class, write the following line here:
