@@ -13,13 +13,14 @@
 @protocol FBSDKLoginManagerExport <JSExport, NSObject>
 - (instancetype)init;
 - (void)logInWithReadPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
-
+- (void)logInWithPublishPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
 @end
 
 
 @interface FBSDKLoginManager (SF)
 
 - (void)logInWithReadPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
+- (void)logInWithPublishPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
 
 @end
 

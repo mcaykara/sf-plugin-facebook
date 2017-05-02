@@ -19,6 +19,15 @@
     }];
 }
 
+- (void)logInWithPublishPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler{
+    [self logInWithPublishPermissions:permissions fromViewController:viewController handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
+        NSMutableDictionary *handlerDict = [[NSMutableDictionary alloc] init];
+        if(result) [handlerDict setObject:result forKey:@"result"];
+        if(error) [handlerDict setObject:error forKey:@"error"];
+        [handler callWithArguments:@[handlerDict]];
+    }];
+}
+
 @end
 
 @implementation FBSDKLoginManagerLoginResult (SF)

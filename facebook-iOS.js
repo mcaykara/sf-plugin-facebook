@@ -1,96 +1,139 @@
 const Page = require('sf-core/ui/page');
 const TypeUtil = require('sf-core/util/type');
 
-function Facebook(params){}
+var loginManager = new FBSDKLoginManager();
+
+function Facebook(params) {}
 
 Object.defineProperties(Facebook, {
     'applicationId': {
-        get: function(){
+        get: function() {
             return FBSDKSettings.appID();
         },
-        set: function(value){
+        set: function(value) {
             FBSDKSettings.setAppID(value);
         },
         enumarable: true
     },
     'applicationName': {
-        get: function(){
+        get: function() {
             return FBSDKSettings.displayName();
         },
-        set: function(value){
+        set: function(value) {
             FBSDKSettings.setDisplayName(value);
         },
         enumarable: true
     },
     'graphApiVersion': {
-        get: function(){
+        get: function() {
             return FBSDKSettings.graphAPIVersion();
         },
-        set: function(value){
+        set: function(value) {
             FBSDKSettings.setGraphAPIVersion(value);
         },
         enumarable: true
     },
     'clientToken': {
-        get: function(){
+        get: function() {
             return FBSDKSettings.clientToken();
         },
         enumarable: true
     },
     'sdkVersion': {
-        get: function(){
+        get: function() {
             return FBSDKSettings.sdkVersion();
         },
         enumarable: true
     },
-    'login' : {
-        value: function(params){
-            if(!params.page instanceof Page){
+    'logInWithReadPermissions': {
+        value: function(params) {
+            if (!params.page instanceof Page) {
                 throw new TypeError("Parameter type mismatch. params.page must be Page instance");
             }
-            if(!TypeUtil.isArray(params.permissions)){
+            if (!TypeUtil.isArray(params.permissions)) {
                 throw new TypeError("Parameter type mismatch. params.permissions must be string array");
             }
             var page = params.page;
             var permissions = params.permissions;
 
-            var loginManager = new FBSDKLoginManager();
-            loginManager.logInWithReadPermissionsViewControllerHandler(permissions,page.nativeObject,function(e){
-                if (e.error) { 
-                    if (typeof params.onFailure === "function"){
+            loginManager.logInWithReadPermissionsViewControllerHandler(permissions, page.nativeObject, function(e) {
+                if (e.error) {
+                    if (typeof params.onFailure === "function") {
                         params.onFailure(new Error(e.error.localizedDescription));
                     }
                 } else if (e.result.isCancelled) {
-                    if (typeof params.onCancel === "function"){
+                    if (typeof params.onCancel === "function") {
                         params.onCancel();
                     }
                 } else {
-                    if (typeof params.onSuccess === "function"){
+                    if (typeof params.onSuccess === "function") {
                         var deniedPermissions = e.result.declinedPermissionsArray;
                         var grantedPermissions = e.result.grantedPermissionsArray;
                         var accessToken = new Facebook.AccessToken({
                             nativeObject: e.result.token
                         });
-                        params.onSuccess({deniedPermissions : deniedPermissions, grantedPermissions : grantedPermissions, accessToken : accessToken});
+                        params.onSuccess({
+                            deniedPermissions: deniedPermissions,
+                            grantedPermissions: grantedPermissions,
+                            accessToken: accessToken
+                        });
                     }
                 }
-            }); 
+            });
+        },
+        enumarable: true
+    },
+    'logInWithPublishPermissions': {
+        value: function(params) {
+            if (!params.page instanceof Page) {
+                throw new TypeError("Parameter type mismatch. params.page must be Page instance");
+            }
+            if (!TypeUtil.isArray(params.permissions)) {
+                throw new TypeError("Parameter type mismatch. params.permissions must be string array");
+            }
+            var page = params.page;
+            var permissions = params.permissions;
+
+            loginManager.logInWithPublishPermissionsViewControllerHandler(permissions, page.nativeObject, function(e) {
+                if (e.error) {
+                    if (typeof params.onFailure === "function") {
+                        params.onFailure(new Error(e.error.localizedDescription));
+                    }
+                } else if (e.result.isCancelled) {
+                    if (typeof params.onCancel === "function") {
+                        params.onCancel();
+                    }
+                } else {
+                    if (typeof params.onSuccess === "function") {
+                        var deniedPermissions = e.result.declinedPermissionsArray;
+                        var grantedPermissions = e.result.grantedPermissionsArray;
+                        var accessToken = new Facebook.AccessToken({
+                            nativeObject: e.result.token
+                        });
+                        params.onSuccess({
+                            deniedPermissions: deniedPermissions,
+                            grantedPermissions: grantedPermissions,
+                            accessToken: accessToken
+                        });
+                    }
+                }
+            });
         },
         enumarable: true
     },
     'graphRequest': {
-        value: function(params){
+        value: function(params) {
             var path = params.graphPath;
             var parameters = params.parameters;
             var httpMethod = params.httpMethod;
 
-            FBSDKGraphRequest.requestWithGraphPathParametersHTTPMethodHandler(path,parameters,httpMethod,function(e){
-                if (e.error) { 
-                    if (typeof params.onFailure === "function"){
+            FBSDKGraphRequest.requestWithGraphPathParametersHTTPMethodHandler(path, parameters, httpMethod, function(e) {
+                if (e.error) {
+                    if (typeof params.onFailure === "function") {
                         params.onFailure(new Error(e.error.localizedDescription));
                     }
-                }else{
-                    if (typeof params.onSuccess === "function"){
+                } else {
+                    if (typeof params.onSuccess === "function") {
                         params.onSuccess(e.result);
                     }
                 }
@@ -104,26 +147,38 @@ Object.defineProperties(Facebook, {
     }
 });
 
-Facebook.AccessToken = function(params){
+Facebook.AccessToken = function(params) {
 
     this.nativeObject = params.nativeObject;
-    
-    Object.defineProperties(this,{
+
+    Object.defineProperties(this, {
         'token': {
-            get: function(){
+            get: function() {
                 return this.nativeObject.tokenString;
             },
             enumarable: true
         },
         'userId': {
-            get: function(){
+            get: function() {
                 return this.nativeObject.userID;
             },
             enumarable: true
         },
         'expireDate': {
-            get: function(){
-               return this.nativeObject.expirationDate;
+            get: function() {
+                return this.nativeObject.expirationDate;
+            },
+            enumarable: true
+        },
+        'permissions': {
+            get: function() {
+                return this.nativeObject.permissionsArray;
+            },
+            enumarable: true
+        },
+        'declinedPermissions': {
+            get: function() {
+                return this.nativeObject.declinedPermissionsArray;
             },
             enumarable: true
         }
@@ -132,12 +187,12 @@ Facebook.AccessToken = function(params){
 
 Object.defineProperties(Facebook.AccessToken, {
     'getCurrentToken': {
-        value: function(){
-            if (FBSDKAccessToken.currentAccessToken()){
+        value: function() {
+            if (FBSDKAccessToken.currentAccessToken()) {
                 return new Facebook.AccessToken({
-                                nativeObject: FBSDKAccessToken.currentAccessToken()
-                            });
-            }else{
+                    nativeObject: FBSDKAccessToken.currentAccessToken()
+                });
+            } else {
                 return null
             }
         },
