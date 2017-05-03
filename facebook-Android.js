@@ -16,6 +16,7 @@ const NativeShareHashtag                = requireClass('com.facebook.share.model
 const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
 const NativeShareLinkContent            = requireClass('com.facebook.share.model.ShareLinkContent');
 const NativeShareFeedContent            = requireClass('com.facebook.share.model.ShareFeedContent');
+const NativeShareVideoContent           = requireClass('com.facebook.share.model.ShareVideoContent');
 const NativeUri                         = requireClass("android.net.Uri");
 
 var activity = Android.getActivity();
@@ -232,7 +233,7 @@ Object.defineProperties(Facebook, {
                 // Arrays.asList causes crash.
                 var peopleIdsSet = new NativeArrayList();
                 for(var index in params.peopleIds){
-                    peopleIdsSet.add(params.peopleIds[index])
+                    peopleIdsSet.add(params.peopleIds[index]);
                 }
                 shareContentBuilder.setPeopleIds(peopleIdsSet);
             }
@@ -265,19 +266,20 @@ Object.defineProperties(Facebook, {
     },
     'shareMediaContent': {
         value: function(params){
-            //  * @param {Object} params
-            //  * @param {String} params.contentUrl
-            //  * @param {String[]} params.peopleIds
-            //  * @param {String} params.placeId
-            //  * @param {String} params.ref
-            //  * @param {Facebook.ShareHastag} params.shareHashtag
-            //  * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
-            //  * @param {Facebook.ShareMode} params.shareMode
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
-            //  * @param {Function} params.onCancel
+//  * @param {Object} params
+//  * @param {UI.Page} params.page
+//  * @param {String} params.contentUrl
+//  * @param {String[]} params.peopleIds
+//  * @param {String} params.placeId
+//  * @param {String} params.ref
+//  * @param {Facebook.ShareHastag} params.shareHashtag
+//  * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
+//  * @param {Facebook.ShareMode} params.shareMode
+//  * @param {Function} params.onSuccess
+//  * @param {String} params.onSuccess.postId
+//  * @param {Function} params.onFailure
+//  * @param {Object} params.onFailure.error
+//  * @param {Function} params.onCancel
         },
         enumarable: true
     },
@@ -307,7 +309,7 @@ Object.defineProperties(Facebook, {
                 // Arrays.asList causes crash.
                 var peopleIdsSet = new NativeArrayList();
                 for(var index in params.peopleIds){
-                    peopleIdsSet.add(params.peopleIds[index])
+                    peopleIdsSet.add(params.peopleIds[index]);
                 }
                 shareContentBuilder.setPeopleIds(peopleIdsSet);
             }
@@ -338,22 +340,58 @@ Object.defineProperties(Facebook, {
     },
     'shareVideoContent': {
         value: function(params){
-            //  * @param {Object} params
-            //  * @param {String} params.contentDescription
-            //  * @param {String} params.contentTitle
-            //  * @param {String} params.contentUrl
-            //  * @param {String[]} params.peopleIds
-            //  * @param {String} params.placeId
-            //  * @param {Facebook.SharePhoto} params.previewPhoto
-            //  * @param {String} params.ref
-            //  * @param {Facebook.ShareHastag} params.shareHashtag
-            //  * @param {Facebook.ShareMode} params.shareMode
-            //  * @param {Facebook.ShareVideo} params.shareVideo
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
-            //  * @param {Function} params.onCancel            
+            if(!params){
+                throw new TypeError("params cannot be null");
+            }
+            var shareContentBuilder = new NativeShareVideoContent.Builder();
+            
+            if(TypeUtil.isString(params.contentDescription)){
+                shareContentBuilder.setContentDescription(params.contentDescription);
+            }
+            if(TypeUtil.isString(params.contentTitle)){
+                shareContentBuilder.setContentTitle(params.contentTitle);
+            }
+            if(TypeUtil.isString(params.contentUrl)){
+                var contentUri = NativeUri.parse(params.contentUrl);
+                shareContentBuilder.setContentUrl(contentUri);
+            }
+            if(TypeUtil.isArray(params.peopleIds)){
+                // Arrays.asList causes crash.
+                var peopleIdsSet = new NativeArrayList();
+                for(var index in params.peopleIds){
+                    peopleIdsSet.add(params.peopleIds[index]);
+                }
+                shareContentBuilder.setPeopleIds(peopleIdsSet);
+            }
+            if(TypeUtil.isString(params.placeId)){
+                shareContentBuilder.setPlaceId(params.placeId);
+            }
+            if(params.previewPhoto instanceof Facebook.SharePhoto){
+                var sharePhoto = params.previewPhoto.nativeObject.build();
+                shareContentBuilder.setPreviewPhoto(sharePhoto);
+            }
+            if(TypeUtil.isString(params.ref)){
+                shareContentBuilder.setRef(params.ref);
+            }
+            if(params.shareHashtag instanceof Facebook.ShareHashtag){
+                var hashTagObject = params.shareHashtag.nativeObject.build();
+                shareContentBuilder.setShareHashtag(hashTagObject);
+            }
+            if(params.shareVideo instanceof Facebook.ShareVideo){
+                var shareVideo = params.shareVideo.nativeObject.build();
+                shareContentBuilder.setVideo(shareVideo);
+            }
+            
+            createAndRegisterShareDialog(shareContentBuilder.build(), createShareModeFromString(params.shareMode),
+            function(result){
+                params.onSuccess && params.onSuccess({postId: result.getPostId()});
+            },
+            function(e) {
+                params.onFailure && params.onFailure(new Error(e.getMessage()));
+            },
+            function() {
+                params.onCancel && params.onCancel();
+            });          
         },
         enumarable: true
     },
@@ -414,14 +452,6 @@ Object.defineProperties(Facebook, {
             function() {
                 params.onCancel && params.onCancel();
             });
-            
-            //  * @param {Facebook.ShareHastag} params.shareHashtag
-            //  * @param {Facebook.ShareMode} params.shareMode
-            //  * @param {Function} params.onSuccess
-            //  * @param {Object} params.onSuccess.data
-            //  * @param {Function} params.onFailure
-            //  * @param {Object} params.onFailure.error
-            //  * @param {Function} params.onCancel            
         },
         enumarable: true
     },
