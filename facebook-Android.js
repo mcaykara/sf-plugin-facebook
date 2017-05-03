@@ -744,7 +744,7 @@ function createShareModeFromString(value){
     const NativeShareDialog = requireClass('com.facebook.share.widget.ShareDialog');
     switch (value) {
         case 'NATIVE':
-            return NativeShareDialog.Mode.AUTOMATIC;
+            return NativeShareDialog.Mode.NATIVE;
         case 'FEED':
             return NativeShareDialog.Mode.FEED;
         case 'WEB':
