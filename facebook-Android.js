@@ -15,7 +15,7 @@ const NativeShareVideo                  = requireClass('com.facebook.share.model
 const NativeShareHashtag                = requireClass('com.facebook.share.model.ShareHashtag');
 const NativeSharePhotoContent           = requireClass('com.facebook.share.model.SharePhotoContent');
 const NativeShareLinkContent            = requireClass('com.facebook.share.model.ShareLinkContent');
-const NativeShareFeedContent            = requireClass('com.facebook.share.model.ShareFeedContent');
+const NativeShareFeedContent            = requireClass('com.facebook.share.internal.ShareFeedContent');
 const NativeShareVideoContent           = requireClass('com.facebook.share.model.ShareVideoContent');
 const NativeShareMediaContent           = requireClass('com.facebook.share.model.ShareMediaContent');
 const NativeUri                         = requireClass("android.net.Uri");
@@ -428,6 +428,21 @@ Object.defineProperties(Facebook, {
         },
         enumarable: true
     },
+    'android': {
+        value: {},
+        enumarable: true
+    },
+    'HttpMethod': {
+        value: {},
+        enumarable: true
+    },
+    'ShareMode': {
+        value: {},
+        enumarable: true
+    }
+});
+
+Object.defineProperties(Facebook.android, {
     'shareFeedContent': {
         value: function(params){
             if(!params){
@@ -486,14 +501,6 @@ Object.defineProperties(Facebook, {
                 params.onCancel && params.onCancel();
             });
         },
-        enumarable: true
-    },
-    'HttpMethod': {
-        value: {},
-        enumarable: true
-    },
-    'ShareMode': {
-        value: {},
         enumarable: true
     }
 });
@@ -675,19 +682,22 @@ Facebook.SharePhoto = function(params){
 
 Facebook.ShareVideo = function(params){
     this.nativeObject = new NativeShareVideo.Builder();
-    var _localUrl;
+    var _videoFile;
     
     Object.defineProperties(this, {
-        'localUrl': {
+        'videoFile': {
             get: function(){
-                return _localUrl;
+                return _videoFile;
             },
             set: function(value){
-                if(!TypeUtil.isString(value)){
-                    throw new TypeError("localUrl must be string");
+                const File = require("sf-core/io/file");
+                const Path = require("sf-core/io/path");
+                
+                if(!( (value instanceof File) && (value.type === Path.FILE_TYPE.FILE) )){
+                    throw new TypeError("localUrl must be IO.File and cannot be assets or image.");
                 }
-                _localUrl = value;
-                var localUri = NativeUri.parse(_localUrl);
+                _videoFile = value;
+                var localUri = NativeUri.fromFile(_videoFile.nativeObject);
                 this.nativeObject.setLocalUrl(localUri);
             },
             enumarable: true

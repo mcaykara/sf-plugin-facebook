@@ -410,12 +410,12 @@ Facebook.ShareVideo = function(){
     /**
      * @todo add description
      * 
-     * @property {String} localUrl
+     * @property {IO.File} videoFile
      * @android
      * @ios
      * @since 1.0
      */
-    this.localUrl;
+    this.videoFile;
 };
 
 /**
