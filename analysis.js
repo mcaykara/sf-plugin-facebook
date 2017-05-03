@@ -261,39 +261,6 @@ Facebook.sharePhotoContent = function(params){};
 Facebook.shareVideoContent = function(params){};
 
 /**
- * Share feed content with share dialog.
- * 
- *     @example
- *     @todo add example
- *
- * @method shareFeedContent
- * @param {Object} params
- * @param {UI.Page} params.page
- * @param {String} params.contentUrl
- * @param {String} params.link
- * @param {String} params.linkName
- * @param {String} params.linkCaption
- * @param {String} params.linkDescription
- * @param {String} params.mediaSource
- * @param {String[]} params.peopleIds
- * @param {String} params.picture
- * @param {String} params.placeId
- * @param {String} params.ref
- * @param {Facebook.ShareHastag} params.shareHashtag
- * @param {Facebook.ShareMode} params.shareMode
- * @param {Function} params.onSuccess
- * @param {String} params.onSuccess.postId
- * @param {Function} params.onFailure
- * @param {Object} params.onFailure.error
- * @param {Function} params.onCancel
- * @android
- * @ios
- * @static
- * @since 1.0
- */
-Facebook.shareFeedContent = function(params){};
-
-/**
  * @class Facebook.AccessToken
  * @since 1.0
  *
