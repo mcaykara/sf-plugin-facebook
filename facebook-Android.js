@@ -17,6 +17,7 @@ const NativeSharePhotoContent           = requireClass('com.facebook.share.model
 const NativeShareLinkContent            = requireClass('com.facebook.share.model.ShareLinkContent');
 const NativeShareFeedContent            = requireClass('com.facebook.share.model.ShareFeedContent');
 const NativeShareVideoContent           = requireClass('com.facebook.share.model.ShareVideoContent');
+const NativeShareMediaContent           = requireClass('com.facebook.share.model.ShareMediaContent');
 const NativeUri                         = requireClass("android.net.Uri");
 
 var activity = Android.getActivity();
@@ -266,20 +267,52 @@ Object.defineProperties(Facebook, {
     },
     'shareMediaContent': {
         value: function(params){
-//  * @param {Object} params
-//  * @param {UI.Page} params.page
-//  * @param {String} params.contentUrl
-//  * @param {String[]} params.peopleIds
-//  * @param {String} params.placeId
-//  * @param {String} params.ref
-//  * @param {Facebook.ShareHastag} params.shareHashtag
-//  * @param {Facebook.SharePhoto[]|Facebook.ShareVideo[]} params.shareMedia
-//  * @param {Facebook.ShareMode} params.shareMode
-//  * @param {Function} params.onSuccess
-//  * @param {String} params.onSuccess.postId
-//  * @param {Function} params.onFailure
-//  * @param {Object} params.onFailure.error
-//  * @param {Function} params.onCancel
+            if(!params){
+                throw new TypeError("params cannot be null");
+            }
+            var shareContentBuilder = new NativeShareMediaContent.Builder();
+            if(TypeUtil.isString(params.contentUrl)){
+                var contentUri = NativeUri.parse(params.contentUrl);
+                shareContentBuilder.setContentUrl(contentUri);
+            }
+            if(TypeUtil.isArray(params.peopleIds)){
+                // Arrays.asList causes crash.
+                var peopleIdsSet = new NativeArrayList();
+                for(var index in params.peopleIds){
+                    peopleIdsSet.add(params.peopleIds[index]);
+                }
+                shareContentBuilder.setPeopleIds(peopleIdsSet);
+            }
+            if(TypeUtil.isString(params.placeId)){
+                shareContentBuilder.setPlaceId(params.placeId);
+            }
+            if(TypeUtil.isString(params.ref)){
+                shareContentBuilder.setRef(params.ref);
+            }
+            if(params.shareHashtag instanceof Facebook.ShareHashtag){
+                var hashTagObject = params.shareHashtag.nativeObject.build();
+                shareContentBuilder.setShareHashtag(hashTagObject);
+            }
+            // Arrays.asList causes crash so loop inside shareMedia
+            if(TypeUtil.isArray(params.shareMedia)){
+                var shareMediaSet = new NativeArrayList();
+                for(var index in params.shareMedia){
+                    var mediaObject = params.shareMedia[index].nativeObject.build();
+                    shareMediaSet.add(mediaObject);
+                }
+                shareContentBuilder.addMedia(shareMediaSet);
+            }
+            
+            createAndRegisterShareDialog(shareContentBuilder.build(), createShareModeFromString(params.shareMode),
+            function(result){
+                params.onSuccess && params.onSuccess({postId: result.getPostId()});
+            },
+            function(e) {
+                params.onFailure && params.onFailure(new Error(e.getMessage()));
+            },
+            function() {
+                params.onCancel && params.onCancel();
+            });
         },
         enumarable: true
     },
