@@ -1,6 +1,7 @@
 const Page = require('sf-core/ui/page');
 const TypeUtil = require('sf-core/util/type');
 const Image = require("sf-core/ui/image");
+const File = require("sf-core/io/file");
 
 var loginManager = new FBSDKLoginManager();
 
@@ -477,7 +478,8 @@ Facebook.ShareVideo = function(params){
     Object.defineProperties(self, {
         'videoFile': {
             get: function(){
-                return self.nativeObject.videoURL.absoluteString;
+                var file = new File({path:self.nativeObject.videoURL.absoluteString});
+                return file;
             },
             set: function(value){
                 var url = value.ios.getNSURL();
