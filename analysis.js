@@ -378,7 +378,7 @@ Facebook.sharePhotoContent = function(params){};
  *           Facebook.shareVideoContent({
  *                page : this,
  *                shareVideo : shareVideo,
- *                peopleIds : ["AaJcJfLdxS-rC9PmYMhzQL7_6LriPY46JzizQZ25],
+ *                peopleIds : ["AaJcJfLdxS-rC9PmYMhzQL7_6LriPY46JzizQZ25"],
  *                shareHashtag : new Facebook.ShareHashtag({hashTag :"#HashTag"}),
  *                quote : "quote",
  *                placeId : "572462939538226",
