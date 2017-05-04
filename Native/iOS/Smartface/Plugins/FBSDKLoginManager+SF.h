@@ -14,6 +14,7 @@
 - (instancetype)init;
 - (void)logInWithReadPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
 - (void)logInWithPublishPermissions:(NSArray *)permissions viewController:(UIViewController *)viewController handler:(JSValue*)handler;
+- (void)logOut;
 @end
 
 
