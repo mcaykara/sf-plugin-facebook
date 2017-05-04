@@ -5,7 +5,7 @@
 A plugin for accessing [Facebook SDKs](https://developers.facebook.com/docs/) with Smartface Native Framework.
 
 ## Installation
-SpriteView can be installed via npm easily from our public npm repository. The installation is pretty easy via Smartface Cloud IDE.
+Smartface Facebook Plugin can be installed via npm easily from our public npm repository. The installation is pretty easy via Smartface Cloud IDE.
 
 - Open scripts/package.json file inside your workspace.
 - Add Facebook plugin dependency as:`"sf-plugin-facebook": "^1.0.0"`
