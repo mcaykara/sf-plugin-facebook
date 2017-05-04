@@ -87,6 +87,12 @@ Object.defineProperties(Facebook, {
         },
         enumarable: true
     },
+    'logOut': {
+        value: function(){
+            loginManager.logOut();
+        },
+        enumerable: true
+    },
     'logInWithReadPermissions' : {
         value: function(params){
             if(!params.page instanceof Page){
@@ -108,7 +114,7 @@ Object.defineProperties(Facebook, {
                     var iterator = loginResult.getRecentlyGrantedPermissions().iterator();
                     
                     while(iterator.hasNext()){
-                        grantedPermissions.push(iterator.next());
+                        grantedPermissions.push(iterator.next().substring(0));
                     }
                     
                     iterator = loginResult.getRecentlyDeniedPermissions().iterator();
@@ -568,8 +574,7 @@ Facebook.AccessToken = function(params){
         'declinedPermissions': {
             get: function(){
                 var declinedPermissions = [];
-                var iterator = this.nativeObject().getDeclinedPermissions().iterator();
-                    
+                var iterator = this.nativeObject.getDeclinedPermissions().iterator();
                 while(iterator.hasNext()){
                     declinedPermissions.push(iterator.next());
                 }
@@ -579,8 +584,7 @@ Facebook.AccessToken = function(params){
         'permissions': {
             get: function(){
                 var permissions = [];
-                var iterator = this.nativeObject().getPermissions().iterator();
-                    
+                var iterator = this.nativeObject.getPermissions().iterator();
                 while(iterator.hasNext()){
                     permissions.push(iterator.next());
                 }

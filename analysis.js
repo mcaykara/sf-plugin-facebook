@@ -179,6 +179,18 @@ Facebook.logInWithPublishPermissions = function(params){};
 Facebook.logInWithReadPermissions = function(params){};
 
 /**
+ * Logout current user from application. After logout, user's access token will be deleted.
+ *
+ * @method logOut
+ * @android
+ * @ios
+ * @static
+ * @since 1.0
+ */
+Facebook.logOut = function(params){};
+
+
+/**
  * Represents a request to the Facebook Graph API.
  * `Facebook.graphRequest` encapsulates the components of a request
  * Nearly all Graph APIs require an access token. Unless specified, the
