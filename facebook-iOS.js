@@ -47,6 +47,12 @@ Object.defineProperties(Facebook, {
         },
         enumarable: true
     },
+    'logOut': {
+        value: function(){
+            loginManager.logOut();
+        },
+        enumerable: true
+    },
     'logInWithReadPermissions': {
         value: function(params) {
             if (!params.page instanceof Page) {
