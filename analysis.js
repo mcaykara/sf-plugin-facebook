@@ -18,7 +18,7 @@
 function Facebook(params){}
 
 /**
- * @todo add description
+ * Get & Set the Facebook App ID used by the SDK.
  * 
  * @property {String} applicationId
  * @android
@@ -29,7 +29,7 @@ function Facebook(params){}
 Facebook.applicationId;
 
 /**
- * @todo add description
+ * Get & Set the Facebook Applicatcion Name used by the SDK.
  * 
  * @property {String} applicationName
  * @android
@@ -40,7 +40,8 @@ Facebook.applicationId;
 Facebook.applicationName;
 
 /**
- * @todo add description
+ * Overrides the default Graph API version.
+ * The string should be of the form `@"v2.7"`.
  * 
  * @property {String} graphApiVersion
  * @android
@@ -51,7 +52,11 @@ Facebook.applicationName;
 Facebook.graphApiVersion;
 
 /**
- * @todo add description
+ * Get & Set the Client Token for the Facebook App.
+
+ * This is needed for certain API calls when made anonymously, without a user-based access token.
+ * - Parameter clientToken: The Facebook App's "client token", which, for a given appid can be found in the Security
+ * section of the Advanced tab of the Facebook App settings found at <https://developers.facebook.com/apps/[your-app-id]>
  * 
  * @property {String} clientToken
  * @android
@@ -62,7 +67,7 @@ Facebook.graphApiVersion;
 Facebook.clientToken;
 
 /**
- * @todo add description
+ * Get current SDK version.
  * 
  * @property {String} sdkVersion
  * @readonly
@@ -74,10 +79,35 @@ Facebook.clientToken;
 Facebook.sdkVersion;
 
 /**
- * @todo add description
+ * Use this method when asking for publish permissions. You should only ask for permissions when they
+ * are needed and explain the value to the user. You can inspect the params.onSuccess.data.deniedPermissions to also
+ * provide more information to the user if they decline permissions.
+
+ * This method will present UI the user. You typically should check if `Facebook.AccessToken.getCurrentToken`
+ * already contains the permissions you need before asking to reduce unnecessary app switching.
+ * You can only do one login call at a time. Calling a login method before the completion handler is called
+ * on a previous login will return an error.
  * 
  *     @example
- *     @todo add example
+ *      const Facebook = require("sf-plugin-facebook");
+ *      var grantedReadPermissions;
+ *      var deniedReadPermissions;
+ *      var accessToken;
+ *      Facebook.logInWithPublishPermissions({
+ *            page: page, 
+ *            permissions: ['publish_actions'],
+ *            onSuccess: function(data){
+ *                grantedReadPermissions = data.grantedPermissions;
+ *                deniedReadPermissions = data.deniedPermissions;
+ *                accessToken = data.accessToken;
+ *            },
+ *            onFailure: function(e){
+ *                alert("Failed to login: " + e);
+ *            },
+ *            onCancel: function(){
+ *                alert("Login canceled");
+ *            }
+ *      });
  *
  * @method logInWithPublishPermissions
  * @param {Object} params
@@ -99,10 +129,35 @@ Facebook.sdkVersion;
 Facebook.logInWithPublishPermissions = function(params){};
 
 /**
- * @todo add description
+ * Use this method when asking for read permissions. You should only ask for permissions when they
+ * are needed and explain the value to the user. You can inspect the params.onSuccess.data.deniedPermissions to also
+ * provide more information to the user if they decline permissions.
+
+ * This method will present UI the user. You typically should check if `Facebook.AccessToken.getCurrentToken`
+ * already contains the permissions you need before asking to reduce unnecessary app switching.
+ * You can only do one login call at a time. Calling a login method before the completion handler is called
+ * on a previous login will return an error.
  * 
  *     @example
- *     @todo add example
+ *      const Facebook = require("sf-plugin-facebook");
+ *      var grantedReadPermissions;
+ *      var deniedReadPermissions;
+ *      var accessToken;
+ *      Facebook.logInWithReadPermissions({
+ *            page: page, 
+ *            permissions: ['user_posts', 'public_profile', 'user_friends', 'user_photos', 'email', 'user_about_me', 'user_hometown'],
+ *            onSuccess: function(data){
+ *                grantedReadPermissions = data.grantedPermissions;
+ *                deniedReadPermissions = data.deniedPermissions;
+ *                accessToken = data.accessToken;
+ *            },
+ *            onFailure: function(e){
+ *                alert("Failed to login: " + e);
+ *            },
+ *            onCancel: function(){
+ *                alert("Login canceled");
+ *            }
+ *      });
  *
  * @method logInWithReadPermissions
  * @param {Object} params
@@ -124,10 +179,23 @@ Facebook.logInWithPublishPermissions = function(params){};
 Facebook.logInWithReadPermissions = function(params){};
 
 /**
- * @todo add description
- * 
+ * Represents a request to the Facebook Graph API.
+ * `Facebook.graphRequest` encapsulates the components of a request
+ * Nearly all Graph APIs require an access token. Unless specified, the
+ * `Facebook.AccessToken.getCurrentToken` is used. Therefore, most requests
+ * will require login first.
  *     @example
- *     @todo add example
+ *     Facebook.graphRequest({
+ *           graphPath : "me",
+ *           parameters : null,
+ *           httpMethod : Facebook.HttpMethod.GET,
+ *           onFailure : function(error){
+ *               alert(error.message);
+ *           },
+ *           onSuccess : function(data){
+ *               alert("Success : " + JSON.stringify(data));
+ *           }
+ *       });
  *
  * @method graphRequest
  * @param {Object} params
@@ -146,10 +214,27 @@ Facebook.logInWithReadPermissions = function(params){};
 Facebook.graphRequest = function(params){};
 
 /**
- * Share link content with share dialog.
+ * A model for status and link content to be shared.
  * 
  *     @example
- *     @todo add example
+ *     Facebook.shareLinkContent({
+ *           page : this,
+ *           shareHashtag : new Facebook.ShareHashtag({hashTag :"#HashTag"}),
+ *           shareMode : Facebook.ShareMode.WEB,
+ *           contentUrl : "https://www.smartface.io/smartface/",
+ *           quote : "quote",
+ *           placeId : "572462939538226",
+ *           ref : "refString",
+ *           onSuccess : function(data){
+ *               alert("data : " + JSON.stringify(data));
+ *           },
+ *           onCancel : function(){
+ *               alert("cancel");
+ *           },
+ *           onFailure : function(error){
+ *               alert(error.message);
+ *           }
+ *       });
  *
  * @method shareLinkContent
  * @param {Object} params
@@ -174,10 +259,34 @@ Facebook.graphRequest = function(params){};
 Facebook.shareLinkContent = function(params){};
 
 /**
- * Share media content with share dialog.
+ * A model for media content (photo or video) to be shared.
  * 
  *     @example
- *     @todo add example
+ *    	var photo = new Facebook.SharePhoto();
+ *	    photo.image = Image.createFromFile("images://smartface.png");
+ *	    photo.caption = "Caption";
+ *
+ *    	var photo2 = new Facebook.SharePhoto();
+ *	    photo2.image = Image.createFromFile("images://smartface.png");
+ *	    photo2.caption = "Caption";
+ *
+ *	    Facebook.shareMediaContent({
+ *	        page : this,
+ *	        shareMedia : [photo,photo2],
+ *	        shareHashtag : new Facebook.ShareHashtag({hashTag :"#HashTag"}),
+ *	        quote : "quote",
+ *	        placeId : "572462939538226",
+ *	        ref : "refString",
+ *	        onSuccess : function(data){
+ *	            alert("data : " + JSON.stringify(data));
+ *	        },
+ *	        onCancel : function(){
+ *	            alert("cancel");
+ *	        },
+ *	        onFailure : function(error){
+ *	            alert(error.message);
+ *	        }
+ *	    });
  *
  * @method shareMediaContent
  * @param {Object} params
@@ -202,10 +311,32 @@ Facebook.shareLinkContent = function(params){};
 Facebook.shareMediaContent = function(params){};
 
 /**
- * Share photo content with share dialog.
+ * A model for photo content to be shared.
  * 
  *     @example
- *     @todo add example
+ *     var photo = new Facebook.SharePhoto();
+ *       photo.image = Image.createFromFile("images://smartface.png");
+ *       photo.caption = "Caption";
+ *
+ *       Facebook.sharePhotoContent({
+ *           page : this,
+ *           sharePhotos : [photo],
+ *           peopleIds : ["AaJcJfLdxS-rC9PmYMh1zQL7_6LriPY346Jziz0QZxx"],
+ *           shareHashtag : new Facebook.ShareHashtag({hashTag :"#HashTag"}),
+ *           shareMode : Facebook.ShareMode.NATIVE,
+ *           quote : "quote",
+ *           placeId : "572462939538226",
+ *           ref : "refString",
+ *           onSuccess : function(data){
+ *               alert("data : " + JSON.stringify(data));
+ *           },
+ *           onCancel : function(){
+ *               alert("cancel");
+ *           },
+ *           onFailure : function(error){
+ *               alert(error.message);
+ *           }
+ *       });
  *
  * @method sharePhotoContent
  * @param {Object} params
@@ -230,10 +361,39 @@ Facebook.shareMediaContent = function(params){};
 Facebook.sharePhotoContent = function(params){};
 
 /**
- * Share video content with share dialog.
+ * A model for video content to be shared.
  * 
  *     @example
- *     @todo add example
+ *       Multimedia.pickFromGallery({
+ *           type: Multimedia.Type.VIDEO,
+ *           onSuccess: onSuccess,
+ *           page : this
+ *        });
+ *
+ *       function onSuccess(picked) { 
+ *           var video = picked.video;
+ *           var shareVideo = new Facebook.ShareVideo();
+ *           shareVideo.localUrl = video;
+ *
+ *           Facebook.shareVideoContent({
+ *                page : this,
+ *                shareVideo : shareVideo,
+ *                peopleIds : ["AaJcJfLdxS-rC9PmYMhzQL7_6LriPY46JzizQZ25],
+ *                shareHashtag : new Facebook.ShareHashtag({hashTag :"#HashTag"}),
+ *                quote : "quote",
+ *                placeId : "572462939538226",
+ *                ref : "refString",
+ *                onSuccess : function(data){
+ *                    alert("data : " + JSON.stringify(data));
+ *                },
+ *                onCancel : function(){
+ *                    alert("cancel");
+ *                },
+ *                onFailure : function(error){
+ *                    alert(error.message);
+ *                }
+ *            });
+ *       }
  *
  * @method shareVideoContent
  * @param {Object} params
@@ -264,16 +424,16 @@ Facebook.shareVideoContent = function(params){};
  * @class Facebook.AccessToken
  * @since 1.0
  *
- * @todo add description
+ * Represents an immutable access token for using Facebook services.
  * 
  *     @example
- *     @todo add example
+ *     Facebook.AccessToken.getCurrentToken()
  * 
  */
 Facebook.AccessToken = function(){
 
     /**
-     * @todo add description
+     * Returns the opaque token string.
      * 
      * @property {String} token
      * @readonly
@@ -284,7 +444,7 @@ Facebook.AccessToken = function(){
     this.token;
     
     /**
-     * @todo add description
+     * Returns the user ID.
      * 
      * @property {String} userId
      * @readonly
@@ -295,7 +455,7 @@ Facebook.AccessToken = function(){
     this.userId;
     
     /**
-     * @todo add description
+     * Returns the expiration date.
      * 
      * @property {Date} expireDate
      * @readonly
@@ -306,7 +466,7 @@ Facebook.AccessToken = function(){
     this.expireDate;
     
     /**
-     * @todo add description
+     * Returns the known declined permissions.
      * 
      * @property {String[]} declinedPermissions
      * @readonly
@@ -317,7 +477,7 @@ Facebook.AccessToken = function(){
     this.declinedPermissions;
     
     /**
-     * @todo add description
+     * Returns the known granted permissions.
      * 
      * @property {String[]} permissions
      * @readonly
@@ -329,10 +489,13 @@ Facebook.AccessToken = function(){
 };
 
 /**
- * @todo add description
+ * 	 Returns the "global" access token that represents the currently logged in user.
+ *
+ *	 The `Facebook.AccessToken.getCurrentToken` is a convenient representation of the token of the
+ *	 current user and is used by other SDK components
  * 
  *     @example
- *     @todo add example
+ *     var currentToken = Facebook.AccessToken.getCurrentToken();
  *
  * @method getCurrentToken
  * @return {Facebook.AccessToken}
@@ -347,16 +510,18 @@ Facebook.AccessToken.getCurrentToken = function(){};
  * @class Facebook.SharePhoto
  * @since 1.0
  *
- * @todo add description
+ * A photo for sharing.
  * 
  *     @example
- *     @todo add example
+ *     var photo = new Facebook.SharePhoto();
+ *     photo.image = Image.createFromFile("images://smartface.png");
+ *     photo.caption = "Caption";
  * 
  */
 Facebook.SharePhoto = function(){
     
     /**
-     * @todo add description. Required on constructor.
+     * Gets/sets the image set.
      * 
      * @property {UI.Image} image
      * @android
@@ -366,7 +531,7 @@ Facebook.SharePhoto = function(){
     this.image;
     
     /**
-     * @todo add description
+     * The URL to the photo.
      * 
      * @property {String} imageUrl
      * @android
@@ -376,7 +541,7 @@ Facebook.SharePhoto = function(){
     this.imageUrl;
     
     /**
-     * @todo add description
+     * The user generated caption for the photo
      * 
      * @property {String} caption
      * @android
@@ -386,7 +551,7 @@ Facebook.SharePhoto = function(){
     this.caption;
     
     /**
-     * @todo add description
+     * Specifies whether the photo represented by the receiver was generated by the user or by the application.
      * 
      * @property {Boolean} userGenerated
      * @android
@@ -400,15 +565,17 @@ Facebook.SharePhoto = function(){
  * @class Facebook.ShareVideo
  * @since 1.0
  *
- * @todo add description
+ * A video for sharing.
  * 
  *     @example
- *     @todo add example
+ *     var shareVideo = new Facebook.ShareVideo();
+ *	   var file = new File({path:value});
+ *     shareVideo.videoFile = file;
  * 
  */
 Facebook.ShareVideo = function(){
     /**
-     * @todo add description
+     * Gets/sets the video file set.
      * 
      * @property {IO.File} videoFile
      * @android
@@ -422,17 +589,18 @@ Facebook.ShareVideo = function(){
  * @class Facebook.ShareHashtag
  * @since 1.0
  *
- * @todo add description
+ * Represents a single hashtag that can be used with the share dialog.
  * 
  *     @example
- *     @todo add example
+ *     var hashTag = new Facebook.ShareHashtag({hashTag :"#HashTag"});
+ *
  *     @param {Object} params
  *     @param {String} params.hashTag
  */
 Facebook.ShareHashtag  = function(params){
 
     /**
-     * @todo add description
+     * The hashtag string.
      * 
      * @property {String} hashTag
      * @readonly
@@ -447,13 +615,13 @@ Facebook.ShareHashtag  = function(params){
  * @enum Facebook.HttpMethod 
  * @since 1.0
  * 
- * @todo add description
+ * Graphrequest HTTP methods
  * 
  */
 Facebook.HttpMethod = {};
 
 /**
- * @todo add description
+ * Graphrequest GET method
  *
  * @property GET
  * @static
@@ -465,7 +633,7 @@ Facebook.HttpMethod = {};
 Facebook.HttpMethod.GET;
 
 /**
- * @todo add description
+ * Graphrequest POST method
  *
  * @property POST
  * @static
@@ -477,7 +645,7 @@ Facebook.HttpMethod.GET;
 Facebook.HttpMethod.POST;
 
 /**
- * @todo add description
+ * Graphrequest DELETE method
  *
  * @property DELETE
  * @static
@@ -492,13 +660,14 @@ Facebook.HttpMethod.DELETE;
  * @enum Facebook.ShareMode 
  * @since 1.0
  * 
- * @todo add description
+ * The automatic mode will progressively check the availability of different modes and open the most
+ * appropriate mode for the dialog that is available.
  * 
  */
 Facebook.ShareMode = {};
 
 /**
- * @todo add description
+ * Acts with the most appropriate mode that is available.
  *
  * @property AUTOMATIC
  * @static
@@ -510,7 +679,7 @@ Facebook.ShareMode = {};
 Facebook.ShareMode.AUTOMATIC;
 
 /**
- * @todo add description
+ * Displays the feed dialog in Browser.
  *
  * @property FEED
  * @static
@@ -522,7 +691,7 @@ Facebook.ShareMode.AUTOMATIC;
 Facebook.ShareMode.FEED;
 
 /**
- * @todo add description
+ * Displays the dialog in the main native Facebook app.
  *
  * @property NATIVE
  * @static
@@ -534,7 +703,7 @@ Facebook.ShareMode.FEED;
 Facebook.ShareMode.NATIVE;
 
 /**
- * @todo add description
+ * Displays the dialog in Browser.
  *
  * @property WEB
  * @static

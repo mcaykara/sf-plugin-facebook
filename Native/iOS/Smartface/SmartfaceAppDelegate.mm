@@ -193,6 +193,18 @@
     class_addProtocol(object_getClass([FBSDKSharePhotoContent class]), @protocol(FBSDKSharePhotoContentExport));
     context[@"FBSDKSharePhotoContent"] = [FBSDKSharePhotoContent class];
     
+    class_addProtocol([FBSDKShareVideo class], @protocol(FBSDKShareVideoExport));
+    class_addProtocol(object_getClass([FBSDKShareVideo class]), @protocol(FBSDKShareVideoExport));
+    context[@"FBSDKShareVideo"] = [FBSDKShareVideo class];
+    
+    class_addProtocol([FBSDKShareVideoContent class], @protocol(FBSDKShareVideoContentExport));
+    class_addProtocol(object_getClass([FBSDKShareVideoContent class]), @protocol(FBSDKShareVideoContentExport));
+    context[@"FBSDKShareVideoContent"] = [FBSDKShareVideoContent class];
+    
+    class_addProtocol([FBSDKShareMediaContent class], @protocol(FBSDKShareMediaContentExport));
+    class_addProtocol(object_getClass([FBSDKShareMediaContent class]), @protocol(FBSDKShareMediaContentExport));
+    context[@"FBSDKShareMediaContent"] = [FBSDKShareMediaContent class];
+    
     context[@"FBSDKErrorDeveloperMessageKey"] = FBSDKErrorDeveloperMessageKey;
     
     /*

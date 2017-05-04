@@ -229,6 +229,95 @@ Object.defineProperties(Facebook, {
         },
         enumarable: true
     },
+    'shareVideoContent': {
+        value: function(params) {
+            if (!params.page instanceof Page) {
+                throw new TypeError("Parameter type mismatch. params.page must be Page instance");
+            }
+
+            var content = new FBSDKShareVideoContent();
+            params.contentUrl ? (content.contentURL = __SF_NSURL.URLWithString(params.contentUrl)) : "";
+            (params.shareHashtag instanceof Facebook.ShareHashtag) ? (content.hashtag = params.shareHashtag.nativeObject) : "";
+            params.placeId ? (content.placeID = params.placeId) : "";
+            params.ref ? (content.ref = params.ref) : "";
+            params.peopleIds ? (content.peopleIDs = params.peopleIds) : "";
+            params.previewPhoto ? (content.previewPhoto = params.previewPhoto.nativeObject) : "";
+
+            content.video = params.shareVideo.nativeObject;
+            
+            var shareDelegate = new FBSDKSharingDelegate();
+            shareDelegate.didCancel = function(e){
+                if (typeof params.onCancel === "function") {
+                    params.onCancel();
+                }
+            };
+            shareDelegate.didFail = function(e){
+                if (typeof params.onFailure === "function") {
+                    params.onFailure(new Error(e.error.localizedDescription + " " + e.error.userInfo[FBSDKErrorDeveloperMessageKey]));
+                }
+            };
+            shareDelegate.didComplete = function(e){
+                if (typeof params.onSuccess === "function") {
+                    params.onSuccess(e.results);
+                }
+            }
+
+            var shareDialog = new FBSDKShareDialog();
+            params.shareMode ? (shareDialog.mode = params.shareMode) : Facebook.ShareMode.AUTOMATIC;
+            shareDialog.fromViewController = params.page.nativeObject;
+            shareDialog.delegate = shareDelegate;
+            shareDialog.shareContent = content;
+            shareDialog.show();
+        },
+        enumarable: true
+    },
+    'shareMediaContent': {
+        value: function(params) {
+            if (!params.page instanceof Page) {
+                throw new TypeError("Parameter type mismatch. params.page must be Page instance");
+            }
+
+            var content = new FBSDKShareMediaContent();
+            params.contentUrl ? (content.contentURL = __SF_NSURL.URLWithString(params.contentUrl)) : "";
+            (params.shareHashtag instanceof Facebook.ShareHashtag) ? (content.hashtag = params.shareHashtag.nativeObject) : "";
+            params.placeId ? (content.placeID = params.placeId) : "";
+            params.ref ? (content.ref = params.ref) : "";
+            params.peopleIds ? (content.peopleIDs = params.peopleIds) : "";
+
+            if (TypeUtil.isArray(params.shareMedia)){
+                var mediasNativeObject = [];
+                for (var i = 0; i < params.shareMedia.length; i++) {
+                    mediasNativeObject.push(params.shareMedia[i].nativeObject);
+                }
+                content.media = mediasNativeObject;
+            }
+            
+            var shareDelegate = new FBSDKSharingDelegate();
+            shareDelegate.didCancel = function(e){
+                if (typeof params.onCancel === "function") {
+                    params.onCancel();
+                }
+            };
+            shareDelegate.didFail = function(e){
+                if (typeof params.onFailure === "function") {
+                    params.onFailure(new Error(e.error.localizedDescription + " " + e.error.userInfo[FBSDKErrorDeveloperMessageKey]));
+                }
+            };
+            shareDelegate.didComplete = function(e){
+                if (typeof params.onSuccess === "function") {
+                    params.onSuccess(e.results);
+                }
+            }
+
+            var shareDialog = new FBSDKShareDialog();
+            params.shareMode ? (shareDialog.mode = params.shareMode) : Facebook.ShareMode.AUTOMATIC;
+            shareDialog.fromViewController = params.page.nativeObject;
+            shareDialog.delegate = shareDelegate;
+            shareDialog.shareContent = content;
+            shareDialog.show();
+        },
+        enumarable: true
+    },
     'HttpMethod': {
         value: {},
         enumarable: true
@@ -293,7 +382,7 @@ Object.defineProperties(Facebook.ShareMode, {
         enumarable: true
     },
     'FEED': {
-        value: FBSDKShareDialogMode.FBSDKShareDialogModeFeedWeb,
+        value: FBSDKShareDialogMode.FBSDKShareDialogModeFeedBrowser,
         enumarable: true
     },
     'NATIVE': {
@@ -301,7 +390,7 @@ Object.defineProperties(Facebook.ShareMode, {
         enumarable: true
     },
     'WEB': {
-        value: FBSDKShareDialogMode.FBSDKShareDialogModeWeb,
+        value: FBSDKShareDialogMode.FBSDKShareDialogModeBrowser,
         enumarable: true
     }
 });
@@ -371,6 +460,30 @@ Facebook.SharePhoto = function(params){
             },
             enumarable: true
         },
+    });
+    
+    // Assign parameters given in constructor
+    if (params) {
+        for (var param in params) {
+            this[param] = params[param];
+        }
+    }
+};
+
+Facebook.ShareVideo = function(params){
+    var self = this;
+    self.nativeObject = new FBSDKShareVideo();
+    
+    Object.defineProperties(self, {
+        'localUrl': {
+            get: function(){
+                return self.nativeObject.videoURL.absoluteString;
+            },
+            set: function(value){
+                self.nativeObject.videoURL = __SF_NSURL.URLWithString(value);
+            },
+            enumarable: true
+        }
     });
     
     // Assign parameters given in constructor

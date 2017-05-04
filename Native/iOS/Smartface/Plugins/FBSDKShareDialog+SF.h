@@ -101,3 +101,38 @@
 @interface FBSDKHashtag (SF)
 
 @end
+
+//FBSDKShareVideoExport
+@protocol FBSDKShareVideoExport <JSExport, NSObject>
+-(instancetype)init;
++ (instancetype)videoWithVideoURL:(NSURL *)videoURL;
++ (instancetype)videoWithVideoURL:(NSURL *)videoURL previewPhoto:(FBSDKSharePhoto *)previewPhoto;
+@property (nonatomic, copy) NSURL *videoURL;
+@property (nonatomic, copy) FBSDKSharePhoto *previewPhoto;
+- (BOOL)isEqualToShareVideo:(FBSDKShareVideo *)video;
+@end
+
+@interface FBSDKShareVideo (SF)
+
+@end
+
+//FBSDKShareVideoContentExport
+@protocol FBSDKShareVideoContentExport <JSExport, NSObject,FBSDKSharingContentExport>
+@property (nonatomic, copy) FBSDKSharePhoto *previewPhoto;
+@property (nonatomic, copy) FBSDKShareVideo *video;
+- (BOOL)isEqualToShareVideoContent:(FBSDKShareVideoContent *)content;
+@end
+
+@interface FBSDKShareVideoContent (SF)
+
+@end
+
+//FBSDKShareMediaContentExport
+@protocol FBSDKShareMediaContentExport <JSExport, NSObject,FBSDKSharingContentExport>
+@property (nonatomic, copy) NSArray *media;
+- (BOOL)isEqualToShareMediaContent:(FBSDKShareMediaContent *)content;
+@end
+
+@interface FBSDKShareMediaContent (SF)
+
+@end
