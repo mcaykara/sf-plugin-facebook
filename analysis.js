@@ -373,7 +373,7 @@ Facebook.sharePhotoContent = function(params){};
  *       function onSuccess(picked) { 
  *           var video = picked.video;
  *           var shareVideo = new Facebook.ShareVideo();
- *           shareVideo.localUrl = video;
+ *           shareVideo.videoFile = video;
  *
  *           Facebook.shareVideoContent({
  *                page : this,

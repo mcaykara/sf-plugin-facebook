@@ -475,12 +475,13 @@ Facebook.ShareVideo = function(params){
     self.nativeObject = new FBSDKShareVideo();
     
     Object.defineProperties(self, {
-        'localUrl': {
+        'videoFile': {
             get: function(){
                 return self.nativeObject.videoURL.absoluteString;
             },
             set: function(value){
-                self.nativeObject.videoURL = __SF_NSURL.URLWithString(value);
+                var url = value.ios.getNSURL();
+                self.nativeObject.videoURL = url;
             },
             enumarable: true
         }
