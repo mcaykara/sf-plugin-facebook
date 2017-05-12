@@ -16,16 +16,15 @@ var myFlexLayoutOptions;
 
 const actions = {
 	'Facebook Set App Name & ID': function(){
-		Facebook.applicationId = '280115889091464';
+		Facebook.applicationId = 'APPLICATION_ID';
 		myLabel.text = myLabel.text + "\n\nFacebook appId: " + Facebook.applicationId;
-		Facebook.applicationName = "SmartfaceNativeFrameworkTest";
+		Facebook.applicationName = "APPLICATION_NAME";
 		myLabel.text = myLabel.text + "\nFacebook appName: " + Facebook.applicationName;
 	},
 	'Facebook Login': function(){
-		Facebook.login({
+		Facebook.loginWithReadPermissions({
 			page: this, 
-			readPermissions: readPermissions,
-			publishPermissions: publishPermissions,
+			permissions: readPermissions,
 			onSuccess: function(data){
 				myLabel.text = myLabel.text + "\n\nLoginData: " + JSON.stringify(data);
 			},
@@ -109,8 +108,33 @@ const actions = {
 			},
 		});
 	},
-	'User Post with Photo': function(){
-		
+	'Post Photo': function(){
+		var sharePhoto = new Facebook.SharePhoto({
+			image: Image.createFromFile('images://smartface.png'),
+			caption: "Smartface Facebook Plugin"
+		});
+		var shareHashtag = new Facebook.ShareHashtag({
+			hashTag: '#smartface'
+		});
+
+		Facebook.sharePhotoContent({
+			page: page,
+			sharePhotos: [sharePhoto],
+			placeId: "572462939538226",
+			shareHashtag: shareHashtag,
+			shareMode: Facebook.ShareMode.AUTOMATIC,
+			caption: "Smartface Native Framework",
+			onSuccess: function(data){
+				myLabel.text = myLabel.text + "\n\nsharePhotoContent: " + JSON.stringify(data);
+			},
+			onFailure: function(e){
+				myLabel.text = myLabel.text + "\n\nsharePhotoContent: error";
+				Application.onUnhandledError(e);
+			},
+			onCancel: function(){
+				myLabel.text = myLabel.text + "\n\nsharePhotoContent: canceled";
+			}
+		});
 	},
 }
 
