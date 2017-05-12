@@ -27,7 +27,7 @@ var callbackManager;
 // Creating Activity Lifecycle listener
 var activityLifeCycleListener = NativeActivityLifeCycleListener.implement({
     onActivityResult: function(requestCode, resultCode, data){
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+        callbackManager && callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 });
 // Attaching Activity Lifecycle event
