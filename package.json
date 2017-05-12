@@ -1,14 +1,10 @@
 {
-  "name": "facebook",
-  "version": "1.1.1",
+  "name": "sf-plugin-facebook",
+  "version": "1.2",
   "description": "Smartface Facebook Plugin for Smartface Native Framework",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git + ssh: //git@bitbucket.org/smartface-team/sf-plugins.git"
   },
   "keywords": ["smartface", "plugins", "facebook", "javascript"],
   "author": {
