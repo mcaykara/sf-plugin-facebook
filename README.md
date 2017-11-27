@@ -5,15 +5,13 @@
 A plugin for accessing [Facebook SDKs](https://developers.facebook.com/docs/) with Smartface Native Framework.
 
 ## Installation
-Smartface Facebook Plugin can be installed via npm easily from our public npm repository. The installation is pretty easy via Smartface Cloud IDE.
-
-- Open scripts/package.json file inside your workspace.
-- Add Facebook plugin dependency as:`"sf-plugin-facebook": "^1.0.0"`
-- Run command `npm install` under the folder `scripts`
-- Finally require the extension as: `require("sf-plugin-facebook")`
+Smartface Facebook Plugin can be installed via npm easily from our public npm repository. The installation is pretty easy via Smartface Cloud IDE. Run the following code in terminal.
+```shell
+(cd ~/workspace/scripts && npm i -S sf-plugin-facebook)
+```
 
 ## How to use
-1) Require plugin with `require("sf-plugin-facebook")`
+1) Require plugin as `require("sf-plugin-facebook")`
 2) Set Application ID and Application name that you created on [Facebook Developer Console](https://developers.facebook.com/) as:
 ```javascript
 Facebook.applicationId = 'YOUR_APPLICATION_ID';
