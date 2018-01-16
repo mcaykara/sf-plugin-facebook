@@ -20,7 +20,7 @@ Facebook.applicationName = "YOUR_APPLICATION_NAME";
 or via config/Android/AndroidManifest.xml or config/iOS/Info.plist. But, if you configure Application ID with Manifest and plist, your Facebook Application ID will not work until you publish your project. We recommend you to use 'Facebook.applicationId' for setting Application ID and name.
 3) Finally you can login: 
 ```javascript
-Facebook.loginWithReadPermissions({
+Facebook.logInWithReadPermissions({
     page: this, 
    permissions: readPermissions,
    onSuccess: function(data){
