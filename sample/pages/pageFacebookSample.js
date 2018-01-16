@@ -15,11 +15,14 @@ var defaultFont = Font.create(Font.DEFAULT, 12, Font.BOLD);
 var myLabel;
 var myFlexLayoutOptions;
 
+const APPLICATION_ID = "APPLICATION_ID";
+const APPLICATION_NAME = "APPLICATION_NAME";
+
 const actions = {
 	'Facebook Set App Name & ID': function(){
-		Facebook.applicationId = '661675377308821';
+		Facebook.applicationId = APPLICATION_ID;
 		myLabel.text = myLabel.text + "\n\nFacebook appId: " + Facebook.applicationId;
-		Facebook.applicationName = "SmartApp";
+		Facebook.applicationName = APPLICATION_NAME;
 		myLabel.text = myLabel.text + "\nFacebook appName: " + Facebook.applicationName;
 	},
 	'Facebook Login': function(){
