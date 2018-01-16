@@ -5,26 +5,43 @@ const Button = require('sf-core/ui/button');
 const FlexLayout = require("sf-core/ui/flexlayout");
 const Label = require("sf-core/ui/label");
 const Font = require("sf-core/ui/font");
-const Facebook = require("sf-extension-facebook");
+const Image = require("sf-core/ui/image");
+const Application = require("sf-core/application");
+const Facebook = require("sf-plugin-facebook");
 
 var readPermissions = ['user_posts', 'public_profile', 'user_friends', 'user_photos'];
 var publishPermissions = ['publish_actions'];
 var defaultFont = Font.create(Font.DEFAULT, 12, Font.BOLD);
-
 var myLabel;
 var myFlexLayoutOptions;
 
 const actions = {
 	'Facebook Set App Name & ID': function(){
-		Facebook.applicationId = 'APPLICATION_ID';
+		Facebook.applicationId = '661675377308821';
 		myLabel.text = myLabel.text + "\n\nFacebook appId: " + Facebook.applicationId;
-		Facebook.applicationName = "APPLICATION_NAME";
+		Facebook.applicationName = "SmartApp";
 		myLabel.text = myLabel.text + "\nFacebook appName: " + Facebook.applicationName;
 	},
 	'Facebook Login': function(){
-		Facebook.loginWithReadPermissions({
+		Facebook.logInWithReadPermissions({
 			page: this, 
 			permissions: readPermissions,
+			onSuccess: function(data){
+				myLabel.text = myLabel.text + "\n\nLoginData: " + JSON.stringify(data);
+			},
+			onFailure: function(e){
+				myLabel.text = myLabel.text + "\n\nLoginData: error";
+				Application.onUnhandledError(e);
+			},
+			onCancel: function(){
+				myLabel.text = myLabel.text + "\n\nLoginData: canceled";
+			}
+		});
+		
+		
+		Facebook.logInWithPublishPermissions({
+			page: this, 
+			permissions: publishPermissions,
 			onSuccess: function(data){
 				myLabel.text = myLabel.text + "\n\nLoginData: " + JSON.stringify(data);
 			},
@@ -116,9 +133,8 @@ const actions = {
 		var shareHashtag = new Facebook.ShareHashtag({
 			hashTag: '#smartface'
 		});
-
 		Facebook.sharePhotoContent({
-			page: page,
+			page: this,
 			sharePhotos: [sharePhoto],
 			placeId: "572462939538226",
 			shareHashtag: shareHashtag,
@@ -136,16 +152,15 @@ const actions = {
 			}
 		});
 	},
-}
-
+};
 
 var Page1 = extend(Page)(
 	function(_super) {
-		var self = this;
 		_super(this, {
 			onShow: function() {
 			},
 			onLoad: function() {
+			  
 				myLabel = new Label({
 					flexGrow: 1,
 					width: 350,
@@ -176,14 +191,13 @@ var Page1 = extend(Page)(
 						}
 					});
 					myFlexLayoutOptions.addChild(btn);
-				})
+				});
 				
 				this.layout.alignItems = FlexLayout.AlignItems.CENTER;
 				this.layout.addChild(myLabel);
 				this.layout.addChild(myFlexLayoutOptions);
 			}
-		});
+	  	});
 	}
 );
-
 module.exports = Page1;
