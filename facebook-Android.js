@@ -20,7 +20,7 @@ const NativeShareVideoContent           = requireClass('com.facebook.share.model
 const NativeShareMediaContent           = requireClass('com.facebook.share.model.ShareMediaContent');
 const NativeUri                         = requireClass("android.net.Uri");
 
-var activity = Android.getActivity();
+var activity                     = require("sf-core/util/Android/androidconfig").activity;
 var spratAndroidActivityInstance = requireClass("io.smartface.android.SpratAndroidActivity").getInstance();
 var loginManager;
 var callbackManager;
