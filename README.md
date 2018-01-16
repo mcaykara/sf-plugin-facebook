@@ -11,7 +11,7 @@ Smartface Facebook Plugin can be installed via npm easily from our public npm re
 ```
 
 ## How to use
-1) Require plugin as `require("sf-plugin-facebook")`
+1) Require plugin as `const Facebook = require("sf-plugin-facebook")`
 2) Set Application ID and Application name that you created on [Facebook Developer Console](https://developers.facebook.com/) as:
 ```javascript
 Facebook.applicationId = 'YOUR_APPLICATION_ID';
@@ -34,8 +34,18 @@ Facebook.logInWithReadPermissions({
    }
 });
 ```
-## Sample
-The folder `sample` holds the example codes. You can put them into your workspace and start using it. 
+## How to run sample code?
+Set your application name and number in sample code under sf-plugin-facebook/sample/pages.
+```javascript
+const APPLICATION_ID = "APPLICATION_ID";
+const APPLICATION_NAME = "APPLICATION_NAME";
+```
+You can use sample page:
+```javascript
+const Router = require(sf-core/router);
+Router.add("pgFacebook", require("sf-plugin-facebook/sample/pages/pageFacebookSample"));
+Router.go("pgFacebook");
+```
 
 ## Need Help?
 Please [submit an issue](https://github.com/smartface/sf-plugin-facebook/issues) on GitHub and provide information about your problem.
