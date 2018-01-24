@@ -533,4 +533,5 @@ Object.defineProperties(Facebook.HttpMethod, {
     }
 })
 
+Facebook.android = {};
 module && (module.exports = Facebook);
