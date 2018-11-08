@@ -16,6 +16,6 @@ if (!project.build.input.android.plugins.facebookandroid)
         path: "plugins/Android/facebookandroid.zip",
         active: true
     };
-console.log(" plugins " + JSON.stringify(project.build.input.android.plugins));
+    
 var output = JSON.stringify(project, null, "\t");
 fs.writeFileSync(projectJSONPath, output, "utf8");

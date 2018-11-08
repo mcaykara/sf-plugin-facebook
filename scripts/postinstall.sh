@@ -3,7 +3,6 @@ mv ../plugins/FacebookAndroid.zip ~/workspace/plugins/iOS/facebookandroid.zip
 mv ../plugins/facebookios.zip ~/workspace/plugins/Android/facebookios.zip
 rm -rf ../plugins
 
-echo $parent_path
 (
     cd "$parent_path"
     node ./project.js
